@@ -1,0 +1,10 @@
+{
+  "name": "vitou-game-server",
+  "version": "0.1.0",
+  "description": "Vitou Game Server",
+  "dependencies": {
+    "socket.io": "^1.3.6",
+    "node-uuid": "^1.4.3",
+    "merge": "^1.2.0"
+  }
+}

@@ -1,0 +1,10 @@
+{
+	"meta": {
+		"assemblage":"WeaponTurret"
+	},
+	"data": [
+		[ "Lance",50,60,30,1000 ],
+		[ "Meteor",100,45,20,1200 ],
+		[ "Farstrider",60,100,50,1400 ]
+	]
+}

@@ -1,0 +1,11 @@
+{
+	"meta": {
+		"comment":"User structure for the game"
+	},
+	"components": [
+		"HasNameComponent",
+		"HasMoneyComponent",
+		"GarageComponent",
+		"HasActiveTankComponent"
+	]
+}

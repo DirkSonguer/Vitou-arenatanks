@@ -1,0 +1,9 @@
+{
+	"meta":{
+		"comment":""
+	},
+	"data":{
+		"activeTank":"",
+		"activeWeaponTurret":""
+	}
+}

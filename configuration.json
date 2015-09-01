@@ -1,0 +1,28 @@
+{
+  "server": {
+    "connectionPort": "8888",
+    "activeModules": [
+      "session",
+      "user",
+      "lobby",
+      "game",
+      "chat"
+    ],
+    "gameDirectory": "game_modules"
+  },
+  "lobby": {
+    "minParticipants": 2,
+    "maxParticipants": 2
+  },
+  "logging": {
+    "logLevel": 0,
+    "logTarget": "CONSOLE",
+    "logFile": ""
+  },
+  "successors": [
+    { "if": "system/game/createfromlobby", "then": "game/successors/ongamecreated" },
+    { "if": "system/user/create", "then": "game/successors/onusercreated" },
+    { "if": "game/gameplay/move", "then": "game/gameplay/endturn" },
+    { "if": "system/gameplay/shoot", "then": "game/gameplay/endturn" }
+  ]
+}

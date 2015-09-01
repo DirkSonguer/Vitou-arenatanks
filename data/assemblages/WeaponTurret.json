@@ -1,0 +1,10 @@
+{
+	"meta": {
+		"comment":"A weapon turret in the game"
+	},
+	"components": [
+		"HasNameComponent",
+		"CanFireComponent",
+		"HasPriceComponent"
+	]
+}

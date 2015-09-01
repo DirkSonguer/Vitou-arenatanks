@@ -1,0 +1,8 @@
+{
+	"meta":{
+		"comment":"This is the garage of a player, containing the tanks and weapon turrets"
+	},
+	"data":{
+		"garage":[]
+	}
+}
