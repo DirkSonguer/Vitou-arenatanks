@@ -30,7 +30,7 @@ var run = function (session, data) {
 	}
 
 	// send state to client
-	var availableItemsString = util.inspect(availableItems);
+	var availableItemsString = util.inspect(availableItems, { depth: null });
 	var event = '{ "module": "shop", "action": "items", "data": "' + availableItemsString + '" }';
 	communicationHandler.sendToSession(event, sessionObject);
 	

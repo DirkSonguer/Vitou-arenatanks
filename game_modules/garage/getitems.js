@@ -42,7 +42,7 @@ var run = function (session, data) {
 	}
 
 	// send garage items to client
-	var garageItemsString = util.inspect(garageItems);
+	var garageItemsString = util.inspect(garageItems, { depth: null });
 	var event = '{ "module": "garage", "action": "items", "data": "' + garageItemsString + '" }';
 	communicationHandler.sendToSession(event, sessionObject);
 

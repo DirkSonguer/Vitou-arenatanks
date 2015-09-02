@@ -12,7 +12,7 @@ var storageHandler = require('../../classes/storagehandler.js');
 var communicationHandler = require('../../classes/communicationhandler.js');
 
 var run = function (session, data) {
- 	// get session object
+	// get session object
 	var sessionObject = storageHandler.get(session.id);
 	
 	// check if session has an attached user
@@ -34,7 +34,7 @@ var run = function (session, data) {
 	var gameObject = storageHandler.get(userObject.game);
 
 	// send state to client
-	var gameObjectString = util.inspect(gameObject);
+	var gameObjectString = util.inspect(gameObject, { depth: null });
 	var event = '{ "module": "game", "action": "state", "data": "' + gameObjectString + '" }';
 	communicationHandler.sendToSession(event, sessionObject);
 	
