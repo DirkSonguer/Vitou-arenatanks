@@ -1,5 +1,6 @@
 {
 	"meta": {
+		"name": "user",
 		"comment":"User structure for the game"
 	},
 	"components": [

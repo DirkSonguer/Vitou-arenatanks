@@ -8,7 +8,8 @@
       "game",
       "chat"
     ],
-    "gameDirectory": "game_modules"
+    "gameDirectory": "game_modules",
+    "gameDataDirectory": "data"
   },
   "lobby": {
     "minParticipants": 2,

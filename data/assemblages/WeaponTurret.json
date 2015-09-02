@@ -1,5 +1,6 @@
 {
 	"meta": {
+		"name": "weaponturret",
 		"comment":"A weapon turret in the game"
 	},
 	"components": [

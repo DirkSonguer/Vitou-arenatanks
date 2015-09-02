@@ -1,6 +1,6 @@
 {
 	"meta": {
-		"assemblage":"Tank"
+		"assemblage":"tank"
 	},
 	"data": [
 		[ "Brutus",10,100,0,0,5,1000 ],

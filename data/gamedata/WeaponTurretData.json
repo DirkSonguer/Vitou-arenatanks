@@ -1,6 +1,6 @@
 {
 	"meta": {
-		"assemblage":"WeaponTurret"
+		"assemblage":"weaponturret"
 	},
 	"data": [
 		[ "Lance",50,60,30,1000 ],

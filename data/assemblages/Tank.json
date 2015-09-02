@@ -1,5 +1,6 @@
 {
 	"meta": {
+		"name": "tank",
 		"comment":"A tank in the game"
 	},
 	"components": [
