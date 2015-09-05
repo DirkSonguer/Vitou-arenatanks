@@ -68,8 +68,8 @@ var run = function (session, data) {
 	storageHandler.set(gameObject.id, gameObject);
 
 	// send game update to all clients
-	var gameObjectString = util.inspect(gameObject, { depth: null });
-	var event = '{ "module": "game", "action": "playermoved", "data": "' + gameObjectString + '" };';
+	var gameObjectString = JSON.stringify(gameObject);
+	var event = '{ "module": "game", "action": "playermoved", "data": ' + gameObjectString + ' };';
 	communicationHandler.sendToUserList(event, gameObject.gameParticipants);
 	
 	// done

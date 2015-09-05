@@ -34,8 +34,8 @@ var run = function (session, data) {
 	var gameObject = storageHandler.get(userObject.game);
 
 	// send state to client
-	var gameObjectString = util.inspect(gameObject, { depth: null });
-	var event = '{ "module": "game", "action": "state", "data": "' + gameObjectString + '" }';
+	var gameObjectString = JSON.stringify(gameObject);
+	var event = '{ "module": "game", "action": "state", "data": ' + gameObjectString + ' }';
 	communicationHandler.sendToSession(event, sessionObject);
 	
 	// done

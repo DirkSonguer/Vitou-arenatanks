@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Server Test Client</title>
+  <link rel="stylesheet" href="./css/main.css">
+</head>
+
+<body>
+  <div id="main">
+    <div id="createuser">
+      <button onclick="sendEvent('system', 'user', 'create', '')">Create new user</button>
+    </div>
+
+    <div id="lobbyhandling" style="display:none;">
+      <div id="createlobby">
+        <button onclick="sendEvent('system', 'lobby', 'create', '')">Create new lobby</button>
+      </div>
+
+      <div id="showlobbies">
+        <button onclick="sendEvent('system', 'lobby', 'list', '')">Show available lobbies</button>
+        <ul id="lobbylist"></ul>
+      </div>
+    </div>
+
+    <div id="currentlobby" style="display:none;">
+      <ul id="currentlobbydata"></ul>
+      <button class="green" onclick="sendEvent('system', 'lobby', 'confirm', '')">Confirm participation</button>
+      <button onclick="sendEvent('system', 'lobby', 'leave', '')">Leave lobby</button>
+    </div>
+
+    <div id="game" style="display:none;">
+    </div>
+
+    <div id="debug">
+      <ul id="debugmessages"></ul>
+    </div>
+
+  </div>
+  <script src="./js/jquery-1.11.1.js"></script>
+  <script src="./js/socket.io-1.2.0.js"></script>
+  <script>
+    var socket = io('http://localhost:8888');
+    
+    var currentUserId = '';
+      
+        $('form').submit(function(){
+          return false;
+        });      
+        
+        function sendEvent(t, m, a, d) {
+          var msgType = JSON.stringify(t);
+          var msgModule = JSON.stringify(m);
+          var msgAction = JSON.stringify(a);
+          var msgData = JSON.stringify(d);
+          socket.emit('event', '{"type": ' + msgType + ', "module": ' + msgModule + ', "action": ' + msgAction + ', "data": ' + msgData + '}');          
+        }
+        
+        socket.on('message', function(msg){
+          $('#debugmessages').append($('<li>').text(msg));
+
+          var serverMessage = JSON.parse(msg);
+
+          if ((serverMessage.module == 'user') && (serverMessage.action == 'created')) {
+            currentUserId = serverMessage.data;
+            $('#createuser').css('display', 'none');
+            $('#lobbyhandling').css('display', 'block');
+          }
+
+          if ((serverMessage.module == 'lobby') && (serverMessage.action == 'created')) {
+            $('#lobbyhandling').css('display', 'none');
+            $('#currentlobby').css('display', 'block');
+            sendEvent('system', 'lobby', 'getstate', '');
+          }
+
+          if ((serverMessage.module == 'lobby') && (serverMessage.action == 'list')) {
+            $('#lobbylist').empty();
+            	for (var i = 0, len = serverMessage.data.length; i < len; i++) {
+                var lobbyObj = '<button class="green" onclick="sendEvent(\'system\', \'lobby\', \'join\', \'' + serverMessage.data[i].id + '\')">Join lobby ' + serverMessage.data[i].id + '</button>';
+                $('#lobbylist').append($('<li>').append(lobbyObj));
+              }
+          }
+
+          if ((serverMessage.module == 'lobby') && (serverMessage.action == 'playerjoined')) {
+            $('#lobbyhandling').css('display', 'none');
+            $('#currentlobby').css('display', 'block');
+            sendEvent('system', 'lobby', 'getstate', '');
+          }
+
+          if ((serverMessage.module == 'lobby') && (serverMessage.action == 'playerconfirmed')) {
+            sendEvent('system', 'lobby', 'getstate', '');
+          }
+
+          if ((serverMessage.module == 'lobby') && (serverMessage.action == 'playerleft')) {
+            if (serverMessage.data == currentUserId) {
+              $('#currentlobby').css('display', 'none');
+              $('#lobbyhandling').css('display', 'block');
+            } else {            
+              sendEvent('system', 'lobby', 'getstate', '');
+            }
+          }
+          
+          if ((serverMessage.module == 'lobby') && (serverMessage.action == 'state')) {
+            $('#currentlobbydata').empty();
+            	for (var i = 0, len = serverMessage.data.lobbyParticipants.length; i < len; i++) {
+                  var playerState = 'Player: ' + serverMessage.data.lobbyParticipants[i];
+                  if (serverMessage.data.lobbyParticipantsConfirmed.indexOf(serverMessage.data.lobbyParticipants[i]) > -1) {
+                    playerState += ' (confirmed!)';
+                  } else {
+                    playerState += ' (unconfirmed!)';
+                  }
+                   $('#currentlobbydata').append($('<li>').text(playerState));
+              }           
+          }
+          
+          if ((serverMessage.module == 'game') && (serverMessage.action == 'created')) {
+            $('#currentlobby').css('display', 'none');
+            $('#game').css('display', 'block');
+          }
+        });
+  </script>
+</body>
+
+</html>

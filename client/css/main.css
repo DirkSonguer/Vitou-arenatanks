@@ -1,0 +1,62 @@
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font: 13px Helvetica, Arial;
+    }
+    
+    form {
+      background: #000;
+      padding: 3px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+    
+    form input {
+      border: 0;
+      padding: 10px;
+      width: 19%;
+      margin-right: .5%;
+    }
+    
+    button {
+      background: rgb(130, 224, 255);
+      border: none;
+      padding: 10px;
+    }
+    
+    button.green {
+      background: rgb(130, 224, 130);
+    }
+    
+    #templates button {
+      width: 90%;
+      background: rgb(130, 224, 255);
+      border: none;
+      padding: 10px;
+      margin: 2px;
+    }
+    
+    ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+    
+    li {
+      padding: 5px 10px;
+    }
+    
+    #debugmessages li:nth-child(odd) {
+      background: #eee;
+    }
+    
+    #main {
+      float: left;
+      width: calc(100% - 270px);
+    }
