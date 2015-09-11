@@ -9,10 +9,20 @@
 <body>
   <div id="main">
     <div id="createuser">
+      <h3>User</h3>
       <button onclick="sendEvent('system', 'user', 'create', '')">Create new user</button>
     </div>
 
+    <div id="itemhandling" style="display:none;">
+      <h3>Items</h3>
+      <button onclick="sendEvent('game', 'garage', 'getitems', '')">Show items in your garage</button>
+      <ul id="garagelist"></ul>
+      <button onclick="sendEvent('game', 'shop', 'getitems', '')">Show available shop items</button>
+      <ul id="shoplist"></ul>
+    </div>
+
     <div id="lobbyhandling" style="display:none;">
+      <h3>Lobby</h3>
       <div id="createlobby">
         <button onclick="sendEvent('system', 'lobby', 'create', '')">Create new lobby</button>
       </div>
@@ -30,19 +40,37 @@
     </div>
 
     <div id="game" style="display:none;">
+      <canvas id="gamecanvas" width="1280" height="800">
+        <script type="text/javascript" src="./js/game.js"></script>
+      </canvas>
     </div>
-
-    <div id="debug">
-      <ul id="debugmessages"></ul>
-    </div>
-
   </div>
+
+  <div id="gameui" class="ui-widget-content">
+    <p id="gameui-playerstate">Not logged in</p>
+    <p id="gameui-playermoney"></p>
+    <p id="gameui-playertank"></p>
+    <p id="gameui-playerweaponturret"></p>
+    <p id="gameui-players"></p>
+    <p id="gameui-currentplayer"></p>
+    <p id="gameui-hitpoints"></p>
+  </div>
+
+  <div id="debug">
+    <ul id="debugmessages"></ul>
+  </div>
+
   <script src="./js/jquery-1.11.1.js"></script>
+  <script src="./js/jquery-ui-1.11.4.js"></script>
   <script src="./js/socket.io-1.2.0.js"></script>
   <script>
     var socket = io('http://localhost:8888');
     
     var currentUserId = '';
+    
+        $(function() {
+          $( "#gameui" ).draggable();
+        });
       
         $('form').submit(function(){
           return false;
@@ -56,8 +84,17 @@
           socket.emit('event', '{"type": ' + msgType + ', "module": ' + msgModule + ', "action": ' + msgAction + ', "data": ' + msgData + '}');          
         }
         
+        socket.io.on('connect_error', function(err) {
+          $('#main').css('display', 'none');
+          $('#debugmessages').append($('<li>').text('Can\'t connect to server. Try reloading. ' + err));
+        });
+        
+        socket.on('connect', function() { 
+          $('#main').css('display', 'block');
+        });        
+        
         socket.on('message', function(msg){
-          $('#debugmessages').append($('<li>').text(msg));
+          $('#debugmessages').prepend($('<li>').text(msg));
 
           var serverMessage = JSON.parse(msg);
 
@@ -65,9 +102,46 @@
             currentUserId = serverMessage.data;
             $('#createuser').css('display', 'none');
             $('#lobbyhandling').css('display', 'block');
+            $('#itemhandling').css('display', 'block');
+            $('#gameui-playerstate').text('User logged in');
+            sendEvent('system', 'user', 'getstate', '');
+          }
+          
+          if ((serverMessage.module == 'user') && (serverMessage.action == 'state')) {
+            $('#gameui-playermoney').text('Money: ' + serverMessage.data.userData.money);
+            $('#gameui-playertank').text('Current tank: ' + serverMessage.data.userData.activeTank);
+            $('#gameui-playerweaponturret').text('Current weapon turret: ' + serverMessage.data.userData.activeWeaponTurret);
+          }
+          
+                    
+          if ((serverMessage.module == 'shop') && (serverMessage.action == 'items')) {
+            $('#shoplist').empty();
+            	for (var i = 0, len = serverMessage.data.length; i < len; i++) {
+                var itemObj = '<button class="green" onclick="sendEvent(\'game\', \'shop\', \'buyitem\', \'' + serverMessage.data[i].id + '\')">Buy ' + serverMessage.data[i].assemblage + ' ' + serverMessage.data[i].data.name + ' (Price: ' + serverMessage.data[i].data.price + ')</button>';
+                $('#shoplist').append($('<li>').append(itemObj));
+              }
+          }
+          
+          if ((serverMessage.module == 'shop') && (serverMessage.action == 'buyitem')) {
+            sendEvent('game', 'garage', 'getitems', '');
+            sendEvent('system', 'user', 'getstate', '');
+          }
+
+          if ((serverMessage.module == 'garage') && (serverMessage.action == 'items')) {
+            $('#garagelist').empty();
+            	for (var i = 0, len = serverMessage.data.length; i < len; i++) {
+                var itemObj = '<button class="green" onclick="sendEvent(\'game\', \'garage\', \'selectitem\', \'' + serverMessage.data[i].id + '\')">Select ' + serverMessage.data[i].assemblage + ' ' + serverMessage.data[i].data.name + '</button>';
+                $('#garagelist').append($('<li>').append(itemObj));
+              }
+          }
+          
+          if ((serverMessage.module == 'garage') && (serverMessage.action == 'selecteditem')) {
+            sendEvent('game', 'garage', 'getitems', '');
+            sendEvent('system', 'user', 'getstate', '');
           }
 
           if ((serverMessage.module == 'lobby') && (serverMessage.action == 'created')) {
+            $('#itemhandling').css('display', 'none');
             $('#lobbyhandling').css('display', 'none');
             $('#currentlobby').css('display', 'block');
             sendEvent('system', 'lobby', 'getstate', '');
@@ -82,6 +156,7 @@
           }
 
           if ((serverMessage.module == 'lobby') && (serverMessage.action == 'playerjoined')) {
+            $('#itemhandling').css('display', 'none');
             $('#lobbyhandling').css('display', 'none');
             $('#currentlobby').css('display', 'block');
             sendEvent('system', 'lobby', 'getstate', '');
@@ -95,6 +170,7 @@
             if (serverMessage.data == currentUserId) {
               $('#currentlobby').css('display', 'none');
               $('#lobbyhandling').css('display', 'block');
+              $('#itemhandling').css('display', 'block');
             } else {            
               sendEvent('system', 'lobby', 'getstate', '');
             }
@@ -114,8 +190,18 @@
           }
           
           if ((serverMessage.module == 'game') && (serverMessage.action == 'created')) {
+            $('#itemhandling').css('display', 'none');
             $('#currentlobby').css('display', 'none');
             $('#game').css('display', 'block');
+            sendEvent('game', 'gameplay', 'getstate', '');
+          }
+                    
+          if ((serverMessage.module == 'game') && (serverMessage.action == 'state')) {
+            $('#gameui-players').text('Players: ');
+            $('#gameui-currentplayer').text('Players: ');
+            $('#gameui-hitpoints').text('Players: ');
+
+//            	for (var i = 0, len = serverMessage.data.length; i < len; i++) {
           }
         });
   </script>

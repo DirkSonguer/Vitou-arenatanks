@@ -12,7 +12,7 @@ var storageHandler = require('../../classes/storagehandler.js');
 var communicationHandler = require('../../classes/communicationhandler.js');
 
 var run = function (session, data) {
- 	// get session object
+	// get session object
 	var sessionObject = storageHandler.get(session.id);
 	
 	// check if session has an attached user

@@ -19,8 +19,11 @@ var run = function (session, data) {
 		return false;
 	}
 	
+	logHandler.log(gamedataHandler.gameDataStructures.user, 2);
+	logHandler.log('', 0);
+	
 	// get initial structure for user assembly
-	var userData = gamedataHandler.gameDataStructures.user;	
+	var userData = (JSON.parse(JSON.stringify(gamedataHandler.gameDataStructures.user)));
 	
 	// import initial tank
 	var defaultTank = storageHandler.getByProperty('assemblage', 'tank');
@@ -35,6 +38,10 @@ var run = function (session, data) {
 	// store data in user object
 	// add created user data to existing user object
 	userObject.userData = userData;
+
+	logHandler.log(gamedataHandler.gameDataStructures.user, 3);
+	logHandler.log('', 0);
+	logHandler.log(userData, 4);
 	
 	// add new user to storage
 	storageHandler.set(userObject.id, userObject);
