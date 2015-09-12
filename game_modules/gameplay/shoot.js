@@ -1,35 +1,3 @@
-/*
-Input: direction, angle, power
-
-// check if player turret allows shot (angle)
-if (Player.CurrentWeaponTurretEntity.CanFireComponent.maxAngle < Input.angle) {
-	return ERROR;
-}
-
-// check if player turret allows shot (power)
-if (Player.CurrentWeaponTurretEntity.CanFireComponent.maxPower < Input.power) {
-	return ERROR;
-}
-
-// calculate impact position
-impactPosition = ..
-
-impactedPlayerEntities = GetAllPlayersAffectedByShot(impactPosition);
-
-foreach (impactedPlayerEntities as impactedPlayerEntity) {
-	// check if opponent is destroyed
-	if (impactedPlayerEntity.CurrentTankEntity.HitpointComponent.hitpoints < Player.CurrentWeaponTurretEntity.CanFireComponent.damage)
-	{
-		// current player has won
-		..
-	}
-	
-	// send message to other player with impact
-	queueMessage(HIT_BY_WEAPON, impactedPlayerEntity, Player.CurrentWeaponTurretEntity);
-	return OK;
-}
-*/
-
 
 // node utilities
 var util = require('util');
@@ -87,50 +55,62 @@ var run = function (session, data) {
 	// power = the length of the line
 		
 	// calculate distances and lengths
-	var xDistance = data.power * Math.sin(data.angle);
-	var yDistance = Math.sqrt((data.power * data.power) - (xDistance * xDistance));
-	
+	var xDistance = Math.floor(data.power * Math.sin(data.angle / 180 * Math.PI));
+	var yDistance = Math.floor(Math.sqrt((data.power * data.power) - (xDistance * xDistance)));
+	logHandler.log('Math.floor(Math.sqrt((' + data.power + ' * ' + data.power + ') - (' + xDistance + ' * ' + xDistance + ')))', 3);
+		
 	// calculate hit x position
 	var targetX = 0;
-	if ((data.angle >= 0) && (data.angle <= 180)) {
-		targetX = gameObject.playerStates[userObject.id].tank.x + xDistance;
-	} else {
-		targetX = gameObject.playerStates[userObject.id].tank.x - xDistance;
-	}
+	targetX = parseInt(gameObject.playerStates[gameObject.gameState['activePlayer']].tank.x) + xDistance;
 
 	// calculate hit y position
 	var targetY = 0;
+	yDistance *= -1;
 	if ((data.angle >= 90) && (data.angle <= 270)) {
-		targetY = gameObject.playerStates[userObject.id].tank.y - yDistance;
-	} else {
-		targetY = gameObject.playerStates[userObject.id].tank.y + yDistance;
+		yDistance *= -1;
 	}
+	targetY = parseInt(gameObject.playerStates[gameObject.gameState['activePlayer']].tank.y) + yDistance;
+
+	logHandler.log('Angle ' + data.angle + ' + Power ' + data.power + ' from position ' + parseInt(gameObject.playerStates[gameObject.gameState['activePlayer']].tank.x) + ' / ' + parseInt(gameObject.playerStates[gameObject.gameState['activePlayer']].tank.y), 3);
+	logHandler.log('XXX: Position ' + parseInt(gameObject.playerStates[gameObject.gameState['activePlayer']].tank.x) + ' + xDistance ' + xDistance + ' is ' + targetX, 3);
+	logHandler.log('YYY Position ' + parseInt(gameObject.playerStates[gameObject.gameState['activePlayer']].tank.y) + ' + yDistance ' + yDistance + ' is ' + targetY, 3);
 	
 	// check all players for hits
 	var playerHitList = new Array();
 	for (var i = 0, ilen = gameObject.gameParticipants.length; i < ilen; i++) {
 		var playerHit = 1;
-		if (
-			((gameObject.playerStates[gameObject.gameParticipants[i]].tank.x - gameObject.playerStates[gameObject.gameParticipants[i]].tank.hitbox) < targetX)
-			|| ((gameObject.playerStates[gameObject.gameParticipants[i]].tank.x - gameObject.playerStates[gameObject.gameParticipants[i]].tank.hitbox) > targetX)
-			) playerHit = 0;
-		if (
-			((gameObject.playerStates[gameObject.gameParticipants[i]].tank.y - gameObject.playerStates[gameObject.gameParticipants[i]].tank.hitbox) < targetY)
-			|| ((gameObject.playerStates[gameObject.gameParticipants[i]].tank.y - gameObject.playerStates[gameObject.gameParticipants[i]].tank.hitbox) > targetY)
-			) playerHit = 0;
+
+		var hbxmin = Math.floor((parseInt(gameObject.playerStates[i].tank.x) - parseInt(gameObject.playerStates[i].tank.hitbox)/2));
+		var hbxmax = Math.floor((parseInt(gameObject.playerStates[i].tank.x) + parseInt(gameObject.playerStates[i].tank.hitbox)/2));
+
+		logHandler.log('Hitbox X from ' + hbxmin + ' to ' + hbxmax + ' (shot to ' + targetX + ')', 4);
+		if ((hbxmin > targetX) || (hbxmax < targetX)) {
+			logHandler.log('X seems out of bounds', 3);
+			playerHit = 0;
+		}
+
+		var hbymin = parseInt(gameObject.playerStates[i].tank.y) - parseInt(gameObject.playerStates[i].tank.hitbox);
+		var hbymax = parseInt(gameObject.playerStates[i].tank.y) + parseInt(gameObject.playerStates[i].tank.hitbox);
+
+		logHandler.log('Hitbox Y from ' + hbymin + ' to ' + hbymax + ' (shot to ' + targetY + ')', 4);
+		if ((hbymin > targetY) || (hbymax < targetY)) {
+			logHandler.log('Y seems out of bounds', 3);
+			playerHit = 0;
+		}
+
 		if (playerHit == 1) {
-			playerHitList.push(gameObject.gameParticipants[i]);
+			playerHitList.push(i);
 		};
 	}
-
+	
 	// check hits
 	if (playerHitList.length > 0) {
 		for (var j = 0, jlen = playerHitList.length; j < jlen; j++) {
 			// reduce hitpoints on hit
-			gameObject.playerStates[playerHitList.length[j]].tank.hitpoints -= gameObject.playerStates[userObject.id].weaponturret.damage;
+			gameObject.playerStates[playerHitList[j]].tank.hitpoints -= gameObject.playerStates[gameObject.gameState['activePlayer']].weaponturret.damage;
 
 			// send hit data
-			var event = '{ "module": "game", "action": "playerhit", "data": "' + playerHitList[j] + '" };';
+			var event = '{ "module": "game", "action": "playerhit", "data": "' + playerHitList[j] + '" }';
 			communicationHandler.sendToUserList(event, gameObject.gameParticipants);
 		}
 	}
@@ -138,9 +118,13 @@ var run = function (session, data) {
 	// store updated game object
 	storageHandler.set(gameObject.id, gameObject);
 
-	// send game update to all clients
-	var gameObjectString = JSON.stringify(gameObject);
-	var event = '{ "module": "game", "action": "playershot", "data": ' + gameObjectString + ' };';
+	// send game update to all clients	
+	var shotResult = {};
+	shotResult['x'] = targetX;
+	shotResult['y'] = targetY;
+	shotResult = JSON.stringify(shotResult);
+
+	var event = '{ "module": "game", "action": "playershot", "data": ' + shotResult + ' }';
 	communicationHandler.sendToUserList(event, gameObject.gameParticipants);
 	
 	// done

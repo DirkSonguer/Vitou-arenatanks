@@ -39,6 +39,10 @@
       <button onclick="sendEvent('system', 'lobby', 'leave', '')">Leave lobby</button>
     </div>
 
+    <div id="result" style="display:none;">
+      <h2 id="resultstring"></h2>
+    </div>
+
     <div id="game" style="display:none;">
       <canvas id="gamecanvas" width="1280" height="800">
         <script type="text/javascript" src="./js/game.js"></script>
@@ -56,6 +60,19 @@
     <p id="gameui-currentplayer"></p>
   </div>
 
+  <div id="tankui" class="ui-widget-content" style="display:none;">
+    <div>
+      <input type="text" placeholder="Move X" id="movex">
+      <input type="text" placeholder="Move Y" id="movey">
+      <button class="green" onclick="moveTank()">Move!</button>
+    </div>
+    <div>
+      <input type="text" placeholder="Angle" id="shotangle">
+      <input type="text" placeholder="Power" id="shotpower">
+      <button class="green" onclick="fireWeaponTurret()">Fire!</button>
+    </div>
+  </div>
+
   <div id="debug">
     <ul id="debugmessages"></ul>
   </div>
@@ -67,9 +84,11 @@
     var socket = io('http://localhost:8888');
     
     var currentUserId = '';
+    var currentUserIndex = '';
     
         $(function() {
           $( "#gameui" ).draggable();
+          $( "#tankui" ).draggable();
           $( "#debug" ).draggable();
         });
       
@@ -83,6 +102,20 @@
           var msgAction = JSON.stringify(a);
           var msgData = JSON.stringify(d);
           socket.emit('event', '{"type": ' + msgType + ', "module": ' + msgModule + ', "action": ' + msgAction + ', "data": ' + msgData + '}');          
+        }
+        
+        function moveTank() {
+          console.log("Whoosh!");
+          
+          var shotData = {'x':$('#movex').val(), 'y':$('#movey').val()};
+          sendEvent('game', 'gameplay', 'move', shotData);
+        }        
+        
+        function fireWeaponTurret() {
+          console.log("Boom!");
+          
+          var shotData = {'angle':$('#shotangle').val(), 'power':$('#shotpower').val()};
+          sendEvent('game', 'gameplay', 'shoot', shotData);
         }
         
         socket.io.on('connect_error', function(err) {
@@ -109,6 +142,7 @@
           }
           
           if ((serverMessage.module == 'user') && (serverMessage.action == 'state')) {
+            $('#gameui-playerstate').text('User logged in (' + serverMessage.data.id + ')');
             $('#gameui-playermoney').text('Money: ' + serverMessage.data.userData.money);
             $('#gameui-playertank').text('Current tank: ' + serverMessage.data.userData.activeTank);
             $('#gameui-playerweaponturret').text('Current weapon turret: ' + serverMessage.data.userData.activeWeaponTurret);
@@ -191,43 +225,81 @@
           }
           
           if ((serverMessage.module == 'game') && (serverMessage.action == 'created')) {
+            clearLayer(groundLayer, 79);
             $('#itemhandling').css('display', 'none');
             $('#currentlobby').css('display', 'none');
             $('#game').css('display', 'block');
             sendEvent('game', 'gameplay', 'getstate', '');
           }
-                    
-          if ((serverMessage.module == 'game') && (serverMessage.action == 'state')) {
-                        
-              $('#gameui-players').empty();
-            	for (var i = 0, len = serverMessage.data.gameParticipants.length; i < len; i++) {
-                var xPos = Math.floor(serverMessage.data.playerStates[i].tank.x / 3.2);
-                var yPos = Math.floor(serverMessage.data.playerStates[i].tank.y / 3.2);
-                console.log(serverMessage.data.playerStates[i].tank.x + ' -> ' + xPos);
-                console.log(serverMessage.data.playerStates[i].tank.y + ' -> ' + yPos);
-                $('#gameui-players').append($('<li>').text('Player ' + i + ': ' + serverMessage.data.gameParticipants[i]));
-                // $('#gameui-players').append($('<li>').text('Player ' + i + ': ' + serverMessage.data.gameParticipants[i] + '(' + xPos + '/' + yPos) + ')');
-                layer01[yPos][xPos] = 196;
-              }
-              
-/*
-{ "module": "game", "action": "state", "data": {"type":"GameObject","id":"27469c80-5921-11e5-97ee-377348e22e55",
-"gameParticipants":["2468f800-5921-11e5-97ee-377348e22e55","216c59d0-5921-11e5-97ee-377348e22e55"],
-"gameState":{"activePlayer":0,"round":1},
-"playerStates":[
-    {
-      "tank":{"name":"Brutus","hitbox":10,"hitpoints":100,"x":55,"y":74,"speed":5,"price":1000},
-      "weaponturret":{"name":"Lance","damage":50,"maxAngle":60,"maxPower":30,"price":1000}
-    },
-    {
-       "tank":{"name":"Brutus","hitbox":10,"hitpoints":100,"x":73,"y":14,"speed":5,"price":1000},
-       "weaponturret":{"name":"Lance","damage":50,"maxAngle":60,"maxPower":30,"price":1000}
-    }],"globalState":""} }
-*/              
-              
 
-            $('#gameui-currentplayer').text('Active player: ' + serverMessage.data.gameState.activePlayer);
-            $('#gameui-hitpoints').text('Player hitpoints: ' + serverMessage.data.playerStates[serverMessage.data.gameState.activePlayer].tank.hitpoints);
+          if ((serverMessage.module == 'game') && (serverMessage.action == 'ended')) {
+            if (serverMessage.data.playerStates[currentUserIndex].tank.hitpoints > 0) {
+              $('#resultstring').text('YOU WON!');
+            } else {
+              $('#resultstring').text('YOU LOST!');
+            }
+            $('#result').css('display', 'block');
+            $('#game').css('display', 'none');
+          }
+
+          if ((serverMessage.module == 'game') && (serverMessage.action == 'playershot')) {
+            var xPos = parseInt(serverMessage.data.x);
+            var yPos = parseInt(serverMessage.data.y);
+            explosionLayer[yPos][xPos] = 151;
+            if (groundLayer[yPos-1][xPos-1] != 28) groundLayer[yPos-1][xPos-1] = 11;
+            if (groundLayer[yPos-1][xPos] != 28) groundLayer[yPos-1][xPos] = 12;
+            if (groundLayer[yPos-1][xPos+1] != 28) groundLayer[yPos-1][xPos+1] = 13;
+            if (groundLayer[yPos][xPos-1] != 28) groundLayer[yPos][xPos-1] = 27;
+            if (groundLayer[yPos][xPos] != 28) groundLayer[yPos][xPos] = 28;
+            if (groundLayer[yPos][xPos+1] != 28) groundLayer[yPos][xPos+1] = 29;
+            if (groundLayer[yPos+1][xPos-1] != 28) groundLayer[yPos+1][xPos-1] = 43;
+            if (groundLayer[yPos+1][xPos] != 28) groundLayer[yPos+1][xPos] = 44;
+            if (groundLayer[yPos+1][xPos+1] != 28) groundLayer[yPos+1][xPos+1] = 45;
+            drawImage();
+          }
+
+          if ((serverMessage.module == 'game') && (serverMessage.action == 'playermoved')) {
+            // layer02[yPos][xPos] = 204;
+            // sendEvent('game', 'gameplay', 'getstate', '');
+          }
+
+          if ((serverMessage.module == 'game') && (serverMessage.action == 'nextturn')) {
+            // layer02[yPos][xPos] = 204;
+            // sendEvent('game', 'gameplay', 'getstate', '');
+          }
+                    
+          if (((serverMessage.module == 'game') && (serverMessage.action == 'state'))
+          || ((serverMessage.module == 'game') && (serverMessage.action == 'nextturn'))) {
+            
+            $('#gameui-players').empty();
+            clearLayer(groundEffectLayer, 0);
+            clearLayer(tankLayer, 0);
+            for (var i = 0, len = serverMessage.data.gameParticipants.length; i < len; i++) {
+              if (serverMessage.data.gameParticipants[i] == currentUserId) {
+                currentUserIndex = i;
+              }
+
+              var xPos = serverMessage.data.playerStates[i].tank.x;
+              var yPos = serverMessage.data.playerStates[i].tank.y;
+              $('#gameui-players').append($('<li>').text('Player ' + i + ': ' + serverMessage.data.gameParticipants[i]));
+              tankLayer[yPos][xPos] = 196;
+            }
+
+              var xPos = serverMessage.data.playerStates[serverMessage.data.gameState.activePlayer].tank.x;
+              var yPos = serverMessage.data.playerStates[serverMessage.data.gameState.activePlayer].tank.y;
+              groundEffectLayer[yPos][xPos] = 150;
+
+            var currentPlayerInfo = 'Active player: ' + serverMessage.data.gameState.activePlayer;
+            if (serverMessage.data.gameState.activePlayer == currentUserIndex) {
+              currentPlayerInfo += ' (YOU!)';
+              $('#tankui').css('display', 'block');
+            } else {
+              currentPlayerInfo += ' (opponent)';
+              $('#tankui').css('display', 'none');
+            }
+            
+            $('#gameui-currentplayer').text(currentPlayerInfo);
+            $('#gameui-hitpoints').text('Player hitpoints: ' + serverMessage.data.playerStates[currentUserIndex].tank.hitpoints);
             drawImage();
           }
         });

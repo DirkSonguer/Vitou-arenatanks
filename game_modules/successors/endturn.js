@@ -45,6 +45,18 @@ var run = function (session, data) {
 		return false;
 	}
 
+	// check if a player is dead
+	for (var i = 0, len = gameObject.gameParticipants.length; i < len; i++) {
+		if (gameObject.playerStates[i].tank.hitpoints <= 0) {
+			// send game update to all clients
+			var gameObjectString = JSON.stringify(gameObject);
+			var event = '{ "module": "game", "action": "ended", "data": ' + gameObjectString + ' }';
+			communicationHandler.sendToUserList(event, gameObject.gameParticipants);
+			storageHandler.delete(userObject.game);
+			return true;
+		}
+	}
+
 	// end turn and hand to next player
 	if ((gameObject.gameState['activePlayer'] + 1) < gameObject.gameParticipants.length) {
 		gameObject.gameState['activePlayer'] += 1;
@@ -58,7 +70,7 @@ var run = function (session, data) {
 
 	// send game update to all clients
 	var gameObjectString = JSON.stringify(gameObject);
-	var event = '{ "module": "game", "action": "nextturn", "data": ' + gameObjectString + ' };';
+	var event = '{ "module": "game", "action": "nextturn", "data": ' + gameObjectString + ' }';
 	communicationHandler.sendToUserList(event, gameObject.gameParticipants);
 	
 	// done
