@@ -51,9 +51,9 @@
     <p id="gameui-playermoney"></p>
     <p id="gameui-playertank"></p>
     <p id="gameui-playerweaponturret"></p>
-    <p id="gameui-players"></p>
-    <p id="gameui-currentplayer"></p>
     <p id="gameui-hitpoints"></p>
+    <ul id="gameui-players"></ul>
+    <p id="gameui-currentplayer"></p>
   </div>
 
   <div id="debug">
@@ -70,6 +70,7 @@
     
         $(function() {
           $( "#gameui" ).draggable();
+          $( "#debug" ).draggable();
         });
       
         $('form').submit(function(){
@@ -197,11 +198,37 @@
           }
                     
           if ((serverMessage.module == 'game') && (serverMessage.action == 'state')) {
-            $('#gameui-players').text('Players: ');
-            $('#gameui-currentplayer').text('Players: ');
-            $('#gameui-hitpoints').text('Players: ');
+                        
+              $('#gameui-players').empty();
+            	for (var i = 0, len = serverMessage.data.gameParticipants.length; i < len; i++) {
+                var xPos = Math.floor(serverMessage.data.playerStates[i].tank.x / 3.2);
+                var yPos = Math.floor(serverMessage.data.playerStates[i].tank.y / 3.2);
+                console.log(serverMessage.data.playerStates[i].tank.x + ' -> ' + xPos);
+                console.log(serverMessage.data.playerStates[i].tank.y + ' -> ' + yPos);
+                $('#gameui-players').append($('<li>').text('Player ' + i + ': ' + serverMessage.data.gameParticipants[i]));
+                // $('#gameui-players').append($('<li>').text('Player ' + i + ': ' + serverMessage.data.gameParticipants[i] + '(' + xPos + '/' + yPos) + ')');
+                layer01[yPos][xPos] = 196;
+              }
+              
+/*
+{ "module": "game", "action": "state", "data": {"type":"GameObject","id":"27469c80-5921-11e5-97ee-377348e22e55",
+"gameParticipants":["2468f800-5921-11e5-97ee-377348e22e55","216c59d0-5921-11e5-97ee-377348e22e55"],
+"gameState":{"activePlayer":0,"round":1},
+"playerStates":[
+    {
+      "tank":{"name":"Brutus","hitbox":10,"hitpoints":100,"x":55,"y":74,"speed":5,"price":1000},
+      "weaponturret":{"name":"Lance","damage":50,"maxAngle":60,"maxPower":30,"price":1000}
+    },
+    {
+       "tank":{"name":"Brutus","hitbox":10,"hitpoints":100,"x":73,"y":14,"speed":5,"price":1000},
+       "weaponturret":{"name":"Lance","damage":50,"maxAngle":60,"maxPower":30,"price":1000}
+    }],"globalState":""} }
+*/              
+              
 
-//            	for (var i = 0, len = serverMessage.data.length; i < len; i++) {
+            $('#gameui-currentplayer').text('Active player: ' + serverMessage.data.gameState.activePlayer);
+            $('#gameui-hitpoints').text('Player hitpoints: ' + serverMessage.data.playerStates[serverMessage.data.gameState.activePlayer].tank.hitpoints);
+            drawImage();
           }
         });
   </script>

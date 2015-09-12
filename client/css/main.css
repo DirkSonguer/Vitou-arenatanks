@@ -64,15 +64,16 @@
     #debug {
       background: #ccc;
       position:absolute;
-      bottom:0px;
-      height: 100px;
-      width:100%;
+      top:170px;
+      right:10px;
+      width: 400px;
+      height: 400px;
       overflow:scroll;
     }
     
     #gameui { 
       background: #cfc;
-      width: 350px;
+      width: 400px;
       height: 150px;
       padding: 0.5em; 
       position:absolute;
