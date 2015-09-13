@@ -39,8 +39,9 @@
       <button onclick="sendEvent('system', 'lobby', 'leave', '')">Leave lobby</button>
     </div>
 
-    <div id="result" style="display:none;">
-      <h2 id="resultstring"></h2>
+    <div id="gamenotification" style="display:none;">
+      <h2 id="notificationmessage"></h2>
+      <button class="green" onclick="hideNotification()">ok</button>
     </div>
 
     <div id="game" style="display:none;">
@@ -112,10 +113,12 @@
         }        
         
         function fireWeaponTurret() {
-          console.log("Boom!");
-          
           var shotData = {'angle':$('#shotangle').val(), 'power':$('#shotpower').val()};
           sendEvent('game', 'gameplay', 'shoot', shotData);
+        }
+        
+        function hideNotification() {
+          $('#gamenotification').css('display', 'none');
         }
         
         socket.io.on('connect_error', function(err) {
@@ -232,13 +235,25 @@
             sendEvent('game', 'gameplay', 'getstate', '');
           }
 
+          if ((serverMessage.module == 'game') && (serverMessage.action == 'playerhit')) {
+            if (serverMessage.data == currentUserIndex) {
+              $('#notificationmessage').text('You have been hit!');
+            } else {
+              $('#notificationmessage').text('Looks like you hit the other tank');
+            }
+            $('#gamenotification').css('display', 'block');
+          }
+
           if ((serverMessage.module == 'game') && (serverMessage.action == 'ended')) {
             if (serverMessage.data.playerStates[currentUserIndex].tank.hitpoints > 0) {
-              $('#resultstring').text('YOU WON!');
+              $('#notificationmessage').text('YOU WON!');
             } else {
-              $('#resultstring').text('YOU LOST!');
+              $('#notificationmessage').text('YOU LOST!');
             }
-            $('#result').css('display', 'block');
+            $('#gamenotification').css('display', 'block');
+            $('#itemhandling').css('display', 'block');
+            $('#lobbyhandling').css('display', 'block');
+            $('#lobbylist').empty();
             $('#game').css('display', 'none');
           }
 
@@ -274,6 +289,7 @@
             $('#gameui-players').empty();
             clearLayer(groundEffectLayer, 0);
             clearLayer(tankLayer, 0);
+            clearLayer(explosionLayer, 0);
             for (var i = 0, len = serverMessage.data.gameParticipants.length; i < len; i++) {
               if (serverMessage.data.gameParticipants[i] == currentUserId) {
                 currentUserIndex = i;
@@ -283,6 +299,10 @@
               var yPos = serverMessage.data.playerStates[i].tank.y;
               $('#gameui-players').append($('<li>').text('Player ' + i + ': ' + serverMessage.data.gameParticipants[i]));
               tankLayer[yPos][xPos] = 196;
+              
+              if (serverMessage.data.playerStates[i].tank.hitpoints <= 50) {
+                explosionLayer[yPos][xPos] = 148;
+              }              
             }
 
               var xPos = serverMessage.data.playerStates[serverMessage.data.gameState.activePlayer].tank.x;
