@@ -37,8 +37,8 @@ var run = function (session, data) {
 		
 		// set initial position for tank
 		var tankData = storageHandler.get(playerObject.userData.activeTank);
-		tankData.data.x = Math.floor(Math.random() * 40) + 1;
-		tankData.data.y = Math.floor(Math.random() * 25) + 1;
+		tankData.data.x = Math.floor(Math.random() * 32) + 3;
+		tankData.data.y = Math.floor(Math.random() * 20) + 2;
 		playerState['tank'] = tankData.data;
 		
 		// add weapon turret

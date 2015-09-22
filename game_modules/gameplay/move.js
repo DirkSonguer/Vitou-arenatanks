@@ -52,17 +52,30 @@ var run = function (session, data) {
 	}
 	
 	// x = movement along the x axis
+	data.x = parseInt(data.x);
+
 	// y = movement along the y axis
+	data.y = parseInt(data.y);
 	
 	// check if speed is allowed
-	data.x = parseInt(data.x);
-	data.y = parseInt(data.y);
 	var cDistance = Math.sqrt((data.x * data.x) + (data.y * data.y));
 	if (cDistance > gameObject.playerStates[gameObject.gameState['activePlayer']].tank.speed) {
 		logHandler.log('Could not move player: Given speed exceeds max tank speed', 3);
 		return false;
 	}
-	
+
+	// validate x position
+	if (((gameObject.playerStates[gameObject.gameState['activePlayer']].tank.x + data.x) < 0) || ((gameObject.playerStates[gameObject.gameState['activePlayer']].tank.x + data.x) > 49)) {
+		logHandler.log('Could not move player: Out of bounds', 3);
+		return false;
+	}
+
+	// validate y position
+	if (((gameObject.playerStates[gameObject.gameState['activePlayer']].tank.y + data.y) < 0) || ((gameObject.playerStates[gameObject.gameState['activePlayer']].tank.y + data.y) > 24)) {
+		logHandler.log('Could not move player: Out of bounds', 3);
+		return false;
+	}
+
 	// move player
 	gameObject.playerStates[gameObject.gameState['activePlayer']].tank.x += data.x;
 	gameObject.playerStates[gameObject.gameState['activePlayer']].tank.y += data.y;
@@ -74,7 +87,7 @@ var run = function (session, data) {
 	var moveResult = {};
 	moveResult['x'] = gameObject.playerStates[gameObject.gameState['activePlayer']].tank.x;
 	moveResult['y'] = gameObject.playerStates[gameObject.gameState['activePlayer']].tank.y;
-	moveResult = JSON.stringify(moveResult);	
+	moveResult = JSON.stringify(moveResult);
 	var event = '{ "module": "game", "action": "playermoved", "data": ' + moveResult + ' }';
 	communicationHandler.sendToUserList(event, gameObject.gameParticipants);
 	
