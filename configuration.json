@@ -13,7 +13,7 @@
   },
   "lobby": {
     "minParticipants": 2,
-    "maxParticipants": 2
+    "maxParticipants": 3
   },
   "logging": {
     "logLevel": 0,

@@ -1,4 +1,8 @@
 <!doctype html>
+
+<!-- This is the game client for the vitou example game-->
+<!-- Note: Super quick & dirty implementation. This is about the server, not the client :) -->
+
 <html>
 
 <head>
@@ -51,6 +55,8 @@
     </div>
   </div>
 
+  <div id="hideui" class="ui-widget-content" onclick="hideShowUI()">X</div>
+
   <div id="gameui" class="ui-widget-content">
     <p id="gameui-playerstate">Not logged in</p>
     <p id="gameui-playermoney"></p>
@@ -73,6 +79,16 @@
       <button class="green" onclick="fireWeaponTurret()">Fire!</button>
     </div>
   </div>
+  <div id="chatui" class="ui-widget-content">
+    <div>
+      <input type="text" placeholder="User, leave empty for broadcast" id="chatuser">
+      <input type="text" placeholder="Message" id="chatmessage">
+      <button class="green" onclick="sendChat()">Chat</button>
+    </div>
+    <div>
+      <ul id="chatmessages"></ul>
+    </div>
+  </div>
 
   <div id="debug">
     <ul id="debugmessages"></ul>
@@ -90,6 +106,7 @@
         $(function() {
           $( "#gameui" ).draggable();
           $( "#tankui" ).draggable();
+          $( "#chatui" ).draggable();
           $( "#debug" ).draggable();
         });
       
@@ -104,6 +121,18 @@
           var msgData = JSON.stringify(d);
           socket.emit('event', '{"type": ' + msgType + ', "module": ' + msgModule + ', "action": ' + msgAction + ', "data": ' + msgData + '}');          
         }
+
+        function hideShowUI() {
+            if ($('#gameui').css('display') !== 'none') {
+              $('#gameui').css('display', 'none');
+              $('#chatui').css('display', 'none');
+              $('#debug').css('display', 'none');              
+            } else {
+              $('#gameui').css('display', 'block');
+              $('#chatui').css('display', 'block');
+              $('#debug').css('display', 'block');              
+            }
+          }
         
         function moveTank() {
           console.log("Whoosh!");
@@ -120,6 +149,16 @@
         function hideNotification() {
           $('#gamenotification').css('display', 'none');
         }
+
+        function sendChat() {
+          if ($('#chatuser').val() == "") {
+            var chatData = $('#chatmessage').val();
+            sendEvent('system', 'chat', 'broadcast', chatData);
+          } else {
+            var chatData = {'message':$('#chatmessage').val(), 'to':$('#chatuser').val()};
+            sendEvent('system', 'chat', 'message', chatData);
+          }
+        }
         
         socket.io.on('connect_error', function(err) {
           $('#main').css('display', 'none');
@@ -134,6 +173,10 @@
           $('#debugmessages').prepend($('<li>').text(msg));
 
           var serverMessage = JSON.parse(msg);
+
+          if ((serverMessage.module == 'chat') && (serverMessage.action == 'message')) {
+            $('#chatmessages').prepend($('<li>').text(serverMessage.data.from + ": " + serverMessage.data.message));
+          }
 
           if ((serverMessage.module == 'user') && (serverMessage.action == 'created')) {
             currentUserId = serverMessage.data;
@@ -150,7 +193,6 @@
             $('#gameui-playertank').text('Current tank: ' + serverMessage.data.userData.activeTank);
             $('#gameui-playerweaponturret').text('Current weapon turret: ' + serverMessage.data.userData.activeWeaponTurret);
           }
-          
                     
           if ((serverMessage.module == 'shop') && (serverMessage.action == 'items')) {
             $('#shoplist').empty();
@@ -290,8 +332,10 @@
             clearLayer(groundEffectLayer, 0);
             clearLayer(tankLayer, 0);
             clearLayer(explosionLayer, 0);
+            
             for (var i = 0, len = serverMessage.data.gameParticipants.length; i < len; i++) {
               if (serverMessage.data.gameParticipants[i] == currentUserId) {
+                console.log("Current user index = " + i);
                 currentUserIndex = i;
               }
 
@@ -304,6 +348,8 @@
                 explosionLayer[yPos][xPos] = 148;
               }              
             }
+            
+            console.log(serverMessage.data.playerStates[serverMessage.data.gameState.activePlayer].tank.x);
 
               var xPos = serverMessage.data.playerStates[serverMessage.data.gameState.activePlayer].tank.x;
               var yPos = serverMessage.data.playerStates[serverMessage.data.gameState.activePlayer].tank.y;
