@@ -179,7 +179,7 @@
           }
 
           if ((serverMessage.module == 'user') && (serverMessage.action == 'created')) {
-            currentUserId = serverMessage.data;
+            currentUserId = serverMessage.data.id;
             $('#createuser').css('display', 'none');
             $('#lobbyhandling').css('display', 'block');
             $('#itemhandling').css('display', 'block');
