@@ -53,9 +53,11 @@ var run = function (session, data) {
 	
 	// x = movement along the x axis
 	data.x = parseInt(data.x);
+	if (!data.x) data.x = 0;
 
 	// y = movement along the y axis
 	data.y = parseInt(data.y);
+	if (!data.y) data.y = 0;
 	
 	// check if speed is allowed
 	var cDistance = Math.sqrt((data.x * data.x) + (data.y * data.y));

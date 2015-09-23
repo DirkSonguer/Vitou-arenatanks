@@ -335,13 +335,13 @@
             
             for (var i = 0, len = serverMessage.data.gameParticipants.length; i < len; i++) {
               if (serverMessage.data.gameParticipants[i] == currentUserId) {
-                console.log("Current user index = " + i);
                 currentUserIndex = i;
               }
 
               var xPos = serverMessage.data.playerStates[i].tank.x;
               var yPos = serverMessage.data.playerStates[i].tank.y;
-              $('#gameui-players').append($('<li>').text('Player ' + i + ': ' + serverMessage.data.gameParticipants[i]));
+              $('#gameui-players').append($('<li>').text('Player ' + i + ': ' + serverMessage.data.gameParticipants[i]));              
+              console.log("Player " + i + " xPos: " + xPos + " yPos: " + yPos);
               tankLayer[yPos][xPos] = 196;
               
               if (serverMessage.data.playerStates[i].tank.hitpoints <= 50) {
