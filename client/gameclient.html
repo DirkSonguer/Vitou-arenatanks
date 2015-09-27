@@ -14,7 +14,10 @@
   <div id="main">
     <div id="createuser">
       <h3>User</h3>
-      <button onclick="sendEvent('system', 'user', 'create', '')">Create new user</button>
+      <button onclick="createRandomUser()">Create new user</button><br />
+      <input type="text" placeholder="Login" id="loginlogin">
+      <input type="text" placeholder="Pass" id="loginpass">
+      <button class="green" onclick="loginUser()">Login user</button>      
     </div>
 
     <div id="itemhandling" style="display:none;">
@@ -133,6 +136,16 @@
               $('#debug').css('display', 'block');              
             }
           }
+
+        function createRandomUser() {
+          var userData = {'login':'Hello', 'password':'Hello'};
+          sendEvent('system', 'user', 'create', userData);
+        }        
+        
+        function loginUser() {
+          var loginData = {'login':$('#loginlogin').val(), 'password':$('#loginpass').val()};
+          sendEvent('system', 'user', 'authenticate', loginData);
+        }
         
         function moveTank() {
           console.log("Whoosh!");
@@ -155,8 +168,16 @@
             var chatData = $('#chatmessage').val();
             sendEvent('system', 'chat', 'broadcast', chatData);
           } else {
-            var chatData = {'message':$('#chatmessage').val(), 'to':$('#chatuser').val()};
-            sendEvent('system', 'chat', 'message', chatData);
+            var userlist = $('#chatuser').val();
+
+            if (userlist.indexOf(";") >= 0) {
+              var userlistarray = userlist.split(";");
+              var chatData = {'message':$('#chatmessage').val(), 'to':userlistarray};
+              sendEvent('system', 'chat', 'group', chatData);
+            } else {
+              var chatData = {'message':$('#chatmessage').val(), 'to':userlist};
+              sendEvent('system', 'chat', 'message', chatData);
+            }
           }
         }
         
