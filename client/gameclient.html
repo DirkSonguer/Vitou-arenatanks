@@ -138,7 +138,8 @@
           }
 
         function createRandomUser() {
-          var userData = {'login':'Hello', 'password':'Hello'};
+          var userTestname = 'Testuser' + Math.floor((Math.random() * 1000) + 1);
+          var userData = {'login':userTestname, 'password':'test'};
           sendEvent('system', 'user', 'create', userData);
         }        
         
