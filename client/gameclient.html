@@ -77,6 +77,10 @@
       <button class="green" onclick="moveTank()">Move!</button>
     </div>
     <div>
+      <input type="text" placeholder="Orientation" id="tankorientation">
+      <button class="green" onclick="turnTank()">Turn!</button>
+    </div>
+    <div>
       <input type="text" placeholder="Angle" id="shotangle">
       <input type="text" placeholder="Power" id="shotpower">
       <button class="green" onclick="fireWeaponTurret()">Fire!</button>
@@ -149,10 +153,13 @@
         }
         
         function moveTank() {
-          console.log("Whoosh!");
-          
           var shotData = {'x':$('#movex').val(), 'y':$('#movey').val()};
           sendEvent('game', 'gameplay', 'move', shotData);
+        }        
+
+        function turnTank() {
+          var turnData = {'orientation':$('#tankorientation').val()};
+          sendEvent('game', 'gameplay', 'turn', turnData);
         }        
         
         function fireWeaponTurret() {
@@ -325,6 +332,7 @@
             var xPos = parseInt(serverMessage.data.x);
             var yPos = parseInt(serverMessage.data.y);
             explosionLayer[yPos][xPos] = 151;
+            
             if (groundLayer[yPos-1][xPos-1] != 28) groundLayer[yPos-1][xPos-1] = 11;
             if (groundLayer[yPos-1][xPos] != 28) groundLayer[yPos-1][xPos] = 12;
             if (groundLayer[yPos-1][xPos+1] != 28) groundLayer[yPos-1][xPos+1] = 13;
@@ -364,13 +372,23 @@
               var yPos = serverMessage.data.playerStates[i].tank.y;
               $('#gameui-players').append($('<li>').text('Player ' + i + ': ' + serverMessage.data.gameParticipants[i]));              
               console.log("Player " + i + " xPos: " + xPos + " yPos: " + yPos);
-              tankLayer[yPos][xPos] = 196;
               
+              var tankImage = 199; // default Brutus
+              if (serverMessage.data.playerStates[i].tank.name == "Spike") tankImage = 228;
+              if (serverMessage.data.playerStates[i].tank.name == "Tower") tankImage = 196;
+              
+              if (serverMessage.data.playerStates[i].tank.orientation == 1) tankImage += 1;
+              if (serverMessage.data.playerStates[i].tank.orientation == 2) tankImage += 17;
+              if (serverMessage.data.playerStates[i].tank.orientation == 3) tankImage += 16;
+              tankLayer[yPos][xPos] = tankImage;
+
+/*
               if (serverMessage.data.playerStates[i].tank.hitpoints <= 50) {
                 explosionLayer[yPos][xPos] = 148;
               }              
+*/          
             }
-            
+
             console.log(serverMessage.data.playerStates[serverMessage.data.gameState.activePlayer].tank.x);
 
               var xPos = serverMessage.data.playerStates[serverMessage.data.gameState.activePlayer].tank.x;

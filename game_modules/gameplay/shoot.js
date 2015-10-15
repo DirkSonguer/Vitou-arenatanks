@@ -50,10 +50,35 @@ var run = function (session, data) {
 		logHandler.log('Could not shoot weapon: Data object does not contain target parameters', 3);
 		return false;
 	}
+
+	// check if parameters are numbers
+	if ((isNaN(parseInt(data.angle))) || (isNaN(parseInt(data.power)))) {
+		logHandler.log('Could not shoot weapon: Data object does not contain valid target parameters', 3);
+		return false;
+	}
 	
-	// angle = the angle from the current players position relative to north (0/+1)
-	// power = the length of the line
-		
+	// orientations: 0 = facing north (0,+1), 1 = facing east (+1,0), 2 = facing south (0,-1), 3 = facing west (-1,0)
+	// angle = the angle from the current players position relative to its orientation
+	// positive angle means going clockwise from the orientation, negative means going counter clockwise
+	// solution: we'll add the angle to (orientation * 90)
+	// power = the length of the line along the vector (orientation + angle)
+	
+	// check if angle is within the allowed range
+	if (Math.abs(data.angle) > parseInt(gameObject.playerStates[gameObject.gameState['activePlayer']].weaponturret.maxAngle)) {
+		logHandler.log('Could not shoot weapon: Angle is outside the allowed bounds of the current weapon turret', 3);
+		return false;
+	}
+
+	// check if power is within the allowed range
+	if (Math.abs(data.power) > parseInt(gameObject.playerStates[gameObject.gameState['activePlayer']].weaponturret.maxPower)) {
+		logHandler.log('Could not shoot weapon: Power is outside the allowed bounds of the current weapon turret', 3);
+		return false;
+	}
+	
+	// correct angle with current orientation
+	logHandler.log('Original angle ' + data.angle + ' with orientation ' + gameObject.playerStates[gameObject.gameState['activePlayer']].tank.orientation, 3);
+	data.angle = parseInt(data.angle) + (parseInt(gameObject.playerStates[gameObject.gameState['activePlayer']].tank.orientation) * 90);
+
 	// calculate distances and lengths
 	var xDistance = Math.floor(data.power * Math.sin(data.angle / 180 * Math.PI));
 	var yDistance = Math.floor(Math.sqrt((data.power * data.power) - (xDistance * xDistance)));
@@ -107,7 +132,7 @@ var run = function (session, data) {
 	if (playerHitList.length > 0) {
 		for (var j = 0, jlen = playerHitList.length; j < jlen; j++) {
 			// reduce hitpoints on hit
-			gameObject.playerStates[playerHitList[j]].tank.hitpoints -= gameObject.playerStates[gameObject.gameState['activePlayer']].weaponturret.damage;
+			gameObject.playerStates[playerHitList[j]].tank.currentHitpoints -= gameObject.playerStates[gameObject.gameState['activePlayer']].weaponturret.damage;
 
 			// send hit data
 			var event = '{ "module": "game", "action": "playerhit", "data": "' + playerHitList[j] + '" }';

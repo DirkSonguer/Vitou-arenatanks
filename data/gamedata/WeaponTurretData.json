@@ -3,8 +3,8 @@
 		"assemblage":"weaponturret"
 	},
 	"data": [
-		[ "Lance",50,360,30,1000 ],
-		[ "Meteor",100,360,20,1200 ],
-		[ "Farstrider",60,360,50,1400 ]
+		[ "Lance",50,40,20,1000 ],
+		[ "Meteor",100,30,10,1200 ],
+		[ "Farstrider",60,45,30,1400 ]
 	]
 }

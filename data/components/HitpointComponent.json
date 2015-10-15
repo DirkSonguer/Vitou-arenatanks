@@ -4,6 +4,7 @@
 		"comment":""
 	},
 	"data":{
-		"hitpoints":0
+		"currentHitpoints":0,
+		"maxHitpoints":0
 	}
 }

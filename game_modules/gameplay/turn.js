@@ -17,7 +17,7 @@ var run = function (session, data) {
 	
 	// check if session has an attached user
 	if (sessionObject.user == "") {
-		logHandler.log('Could not end turn: User is not authenticated', 3);
+		logHandler.log('Could not move player: User is not authenticated', 3);
 		return false;
 	}
 		
@@ -26,7 +26,7 @@ var run = function (session, data) {
 		
 	// check if session has an attached user
 	if ((!userObject) || (userObject.type != "UserObject")) {
-		logHandler.log('Could not end turn: No user object found', 3);
+		logHandler.log('Could not move player: No user object found', 3);
 		return false;
 	}	
 	
@@ -35,42 +35,34 @@ var run = function (session, data) {
 
 	// check if object is really a game
 	if ((!gameObject) || (gameObject.type != "GameObject")) {
-		logHandler.log('Could not end turn: No game object received', 3);
+		logHandler.log('Could not move player: No game object received', 3);
 		return false;
 	}
 	
 	// check if it's the current players turn
 	if (gameObject.gameParticipants[gameObject.gameState['activePlayer']] != userObject.id) {
-		logHandler.log('Could not end turn: Not current users turn', 3);
+		logHandler.log('Could not move player: Not current users turn', 3);
 		return false;
 	}
 
-	// check if a player is dead
-	for (var i = 0, len = gameObject.gameParticipants.length; i < len; i++) {
-		if (gameObject.playerStates[i].tank.currentHitpoints <= 0) {
-			// send game update to all clients
-			var gameObjectString = JSON.stringify(gameObject);
-			var event = '{ "module": "game", "action": "ended", "data": ' + gameObjectString + ' }';
-			communicationHandler.sendToUserList(event, gameObject.gameParticipants);
-			storageHandler.delete(userObject.game);
-			return true;
-		}
+	// check if parameters are handed over
+	if ((!data) || (typeof data.orientation == 'undefined')  || (isNaN(parseInt(data.orientation)))) {
+		logHandler.log('Could not move player: Data object does not contain coordinates', 3);
+		return false;
 	}
-
-	// end turn and hand to next player
-	if ((gameObject.gameState['activePlayer'] + 1) < gameObject.gameParticipants.length) {
-		gameObject.gameState['activePlayer'] += 1;
-	} else {
-		gameObject.gameState['activePlayer'] = 0;
-		gameObject.gameState['round'] += 1;
+	
+	// orientations: 0 = facing north (0,+1), 1 = facing east (+1,0), 2 = facing south (0,-1), 3 = facing west (-1,0)
+	
+	// set new orientation
+	if ((parseInt(data.orientation) >= 0) && (parseInt(data.orientation) <= 3)) {
+		gameObject.playerStates[gameObject.gameState['activePlayer']].tank.orientation = data.orientation;
 	}
 	
 	// store updated game object
 	storageHandler.set(gameObject.id, gameObject);
 
 	// send game update to all clients
-	var gameObjectString = JSON.stringify(gameObject);
-	var event = '{ "module": "game", "action": "nextturn", "data": ' + gameObjectString + ' }';
+	var event = '{ "module": "game", "action": "playerturned", "data": ' + data.orientation + ' }';
 	communicationHandler.sendToUserList(event, gameObject.gameParticipants);
 	
 	// done
