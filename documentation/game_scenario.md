@@ -48,16 +48,6 @@ Again, player 2 creates itself a new user with default state and possessions.
 
 Let's assume player 2 also wants to buy a new item, so he requests all available items to buy in the shop as well.
 
-## Player 2: Buy a new weapon turret (game/shop/buyitem/$weaponturret_id)
-
-The player chooses a weapon turret from the list of available items and buys it.
-
-## Player 2: Use new turret with current tank (game/garage/selectitem/$weaponturret_id)
-
-The player selects the new weapon turret as his main turret to play with.
-
-This does not change the default tank the user has equipped. The game simply assumes that the weapon turret is replaced on the existing tank.
-
 ## Player 1: Open a new lobby (system/lobby/create/-)
 
 Player 1 wants to play, so he opens a lobby and waits for other players.

@@ -41,10 +41,6 @@ var run = function (session, data) {
 		tankData.data.y = Math.floor(Math.random() * 20) + 2;
 		tankData.data.orientation = Math.floor(Math.random() * 3);
 		playerState['tank'] = tankData.data;
-		
-		// add weapon turret
-		var weaponturretData = storageHandler.get(playerObject.userData.activeWeaponTurret);
-		playerState['weaponturret'] = weaponturretData.data;
 
 		// add player state to game object
 		gameObject.playerStates.push(playerState);

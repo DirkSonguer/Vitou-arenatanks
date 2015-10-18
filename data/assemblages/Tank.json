@@ -9,6 +9,7 @@
 		"HitpointComponent",
 		"PositionComponent",
 		"CanMoveComponent",
+		"CanFireComponent",
 		"HasPriceComponent"
 	]
 }

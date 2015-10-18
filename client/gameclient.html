@@ -14,7 +14,10 @@
   <div id="main">
     <div id="createuser">
       <h3>User</h3>
-      <button onclick="createRandomUser()">Create new user</button><br />
+      <input type="text" placeholder="Login" id="createuserlogin">
+      <input type="text" placeholder="Pass" id="createuserpass">
+      <button class="green" onclick="createNewUser()">Create new user</button><br />
+      <button onclick="createRandomUser()">Create random user</button><br />
       <input type="text" placeholder="Login" id="loginlogin">
       <input type="text" placeholder="Pass" id="loginpass">
       <button class="green" onclick="loginUser()">Login user</button>      
@@ -141,6 +144,11 @@
             }
           }
 
+        function createNewUser() {
+          var userData = {'login':$('#createuserlogin').val(), 'password':$('#createuserpass').val()};
+          sendEvent('system', 'user', 'create', userData);
+        }        
+
         function createRandomUser() {
           var userTestname = 'Testuser' + Math.floor((Math.random() * 1000) + 1);
           var userData = {'login':userTestname, 'password':'test'};
@@ -160,7 +168,7 @@
         function turnTank() {
           var turnData = {'orientation':$('#tankorientation').val()};
           sendEvent('game', 'gameplay', 'turn', turnData);
-        }        
+        }
         
         function fireWeaponTurret() {
           var shotData = {'angle':$('#shotangle').val(), 'power':$('#shotpower').val()};
@@ -207,7 +215,8 @@
             $('#chatmessages').prepend($('<li>').text(serverMessage.data.from + ": " + serverMessage.data.message));
           }
 
-          if ((serverMessage.module == 'user') && (serverMessage.action == 'created')) {
+          if (((serverMessage.module == 'user') && (serverMessage.action == 'created'))
+          || ((serverMessage.module == 'user') && (serverMessage.action == 'authenticated'))) {
             currentUserId = serverMessage.data.id;
             $('#createuser').css('display', 'none');
             $('#lobbyhandling').css('display', 'block');
@@ -220,7 +229,6 @@
             $('#gameui-playerstate').text('User logged in (' + serverMessage.data.id + ')');
             $('#gameui-playermoney').text('Money: ' + serverMessage.data.userData.money);
             $('#gameui-playertank').text('Current tank: ' + serverMessage.data.userData.activeTank);
-            $('#gameui-playerweaponturret').text('Current weapon turret: ' + serverMessage.data.userData.activeWeaponTurret);
           }
                     
           if ((serverMessage.module == 'shop') && (serverMessage.action == 'items')) {
@@ -316,7 +324,7 @@
           }
 
           if ((serverMessage.module == 'game') && (serverMessage.action == 'ended')) {
-            if (serverMessage.data.playerStates[currentUserIndex].tank.hitpoints > 0) {
+            if (serverMessage.data.playerStates[currentUserIndex].tank.currentHitpoints >= 0) {
               $('#notificationmessage').text('YOU WON!');
             } else {
               $('#notificationmessage').text('YOU LOST!');
@@ -382,11 +390,9 @@
               if (serverMessage.data.playerStates[i].tank.orientation == 3) tankImage += 16;
               tankLayer[yPos][xPos] = tankImage;
 
-/*
-              if (serverMessage.data.playerStates[i].tank.hitpoints <= 50) {
+              if ((parseInt(serverMessage.data.playerStates[i].tank.maxHitpoints)*0.5) > serverMessage.data.playerStates[i].tank.currentHitpoints) {
                 explosionLayer[yPos][xPos] = 148;
               }              
-*/          
             }
 
             console.log(serverMessage.data.playerStates[serverMessage.data.gameState.activePlayer].tank.x);
@@ -405,7 +411,7 @@
             }
             
             $('#gameui-currentplayer').text(currentPlayerInfo);
-            $('#gameui-hitpoints').text('Player hitpoints: ' + serverMessage.data.playerStates[currentUserIndex].tank.hitpoints);
+            $('#gameui-hitpoints').text('Player hitpoints: ' + serverMessage.data.playerStates[currentUserIndex].tank.currentHitpoints);
             drawImage();
           }
         });

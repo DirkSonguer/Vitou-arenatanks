@@ -29,11 +29,6 @@ var run = function (session, data) {
 	var defaultTank = storageHandler.getByProperty('assemblage', 'tank');
 	userData.garage.push(defaultTank[0].id);
 	userData.activeTank = defaultTank[0].id;
-		
-	// import initial weaponturret
-	var defaultWeaponTurret = storageHandler.getByProperty('assemblage', 'weaponturret');
-	userData.garage.push(defaultWeaponTurret[0].id);
-	userData.activeWeaponTurret = defaultWeaponTurret[0].id
 
 	// store data in user object
 	// add created user data to existing user object

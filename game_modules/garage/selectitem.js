@@ -45,8 +45,8 @@ var run = function (session, data) {
 		return false;
 	}
 
-	// check if item is either a tank or weaponturret
-	if ((garageItem.assemblage != 'tank') && (garageItem.assemblage != 'weaponturret')) {
+	// check if item is a tank
+	if (garageItem.assemblage != 'tank') {
 		logHandler.log('Could not select garage items: Item is neither tank nor weapon turret', 3);
 		return false;
 	}
@@ -54,8 +54,6 @@ var run = function (session, data) {
 	// set user data
 	if (garageItem.assemblage == 'tank') {
 		userObject.userData.activeTank = data;
-	} else {
-		userObject.userData.activeWeaponTurret = data;
 	}
 	
 	storageHandler.set(userObject.id, userObject);

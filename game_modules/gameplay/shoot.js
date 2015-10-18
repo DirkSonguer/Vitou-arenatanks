@@ -64,13 +64,13 @@ var run = function (session, data) {
 	// power = the length of the line along the vector (orientation + angle)
 	
 	// check if angle is within the allowed range
-	if (Math.abs(data.angle) > parseInt(gameObject.playerStates[gameObject.gameState['activePlayer']].weaponturret.maxAngle)) {
+	if (Math.abs(data.angle) > parseInt(gameObject.playerStates[gameObject.gameState['activePlayer']].tank.maxAngle)) {
 		logHandler.log('Could not shoot weapon: Angle is outside the allowed bounds of the current weapon turret', 3);
 		return false;
 	}
 
 	// check if power is within the allowed range
-	if (Math.abs(data.power) > parseInt(gameObject.playerStates[gameObject.gameState['activePlayer']].weaponturret.maxPower)) {
+	if (Math.abs(data.power) > parseInt(gameObject.playerStates[gameObject.gameState['activePlayer']].tank.maxPower)) {
 		logHandler.log('Could not shoot weapon: Power is outside the allowed bounds of the current weapon turret', 3);
 		return false;
 	}
@@ -132,7 +132,7 @@ var run = function (session, data) {
 	if (playerHitList.length > 0) {
 		for (var j = 0, jlen = playerHitList.length; j < jlen; j++) {
 			// reduce hitpoints on hit
-			gameObject.playerStates[playerHitList[j]].tank.currentHitpoints -= gameObject.playerStates[gameObject.gameState['activePlayer']].weaponturret.damage;
+			gameObject.playerStates[playerHitList[j]].tank.currentHitpoints -= gameObject.playerStates[gameObject.gameState['activePlayer']].tank.damage;
 
 			// send hit data
 			var event = '{ "module": "game", "action": "playerhit", "data": "' + playerHitList[j] + '" }';
