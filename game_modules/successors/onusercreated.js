@@ -30,6 +30,10 @@ var run = function (session, data) {
 	userData.garage.push(defaultTank[0].id);
 	userData.activeTank = defaultTank[0].id;
 
+	// create structure for booster cards
+	userData.boostercards = new Array();
+	userData.activeBoosters = new Array();
+
 	// store data in user object
 	// add created user data to existing user object
 	userObject.userData = userData;

@@ -17,29 +17,34 @@
       width: 100%;
     }
     
-    form input {
+    .inputfield {
       border: 0;
       padding: 10px;
-      width: 19%;
-      margin-right: .5%;
+      width: 200px;
+      margin: 10px;
     }
     
     button {
-      background: rgb(130, 224, 255);
       border: none;
       padding: 10px;
+      margin: 5px;
+      width: 15ppx;
     }
     
-    button.green {
+    button.confirm {
       background: rgb(130, 224, 130);
     }
     
-    #templates button {
-      width: 90%;
+    button.action {
       background: rgb(130, 224, 255);
-      border: none;
-      padding: 10px;
-      margin: 2px;
+    }
+    
+    button.decline {
+      background: rgb(255, 100, 80);
+    }
+    
+    hr {
+      margin: 10px;
     }
     
     ul {
@@ -60,6 +65,36 @@
       float: left;
       width: calc(100% - 270px);
     }
+    
+    #gameui {
+      position:fixed;
+      top: 20;
+      left: 20;
+      opacity: 0.9;
+    }
+
+    .contentblock {
+      width: 300px;
+      padding:1em;
+      float: left;
+      margin: 10px;
+      text-align: center;
+      border: 1px solid #ccc;
+      background-color: #f3f3f3;          
+    }
+        
+    .centerdialog {
+      position:fixed;
+      top: 50%;
+      left: 50%;
+      width: 300px;
+      padding:1em;
+      margin-top: -15em; /*set to a negative number 1/2 of your height*/
+      margin-left: -15em; /*set to a negative number 1/2 of your width*/
+      text-align: center;
+      border: 1px solid #ccc;
+      background-color: #f3f3f3;          
+    }    
 
     #hideui { 
       background: #f33;
@@ -71,56 +106,24 @@
       right:2px;
     }
 
-    #debug {
+    #debugwindow {
       background: #ccc;
       position:absolute;
       top:170px;
       right:20px;
       width: 400px;
+    }
+
+    #debugmessages {
+      word-wrap: break-word;
       height: 400px;
       overflow:scroll;
     }
-    
-    #gameui { 
-      background: #cfc;
-      width: 400px;
-      height: 150px;
-      padding: 0.5em; 
-      position:absolute;
-      top:10px;
-      right:20px;
-    }
-    
-    #tankui { 
-      background: #fcc;
-      width: 250px;
-      height: 150px;
-      padding: 0.5em; 
-      position:absolute;
-      top:10px;
-      right:440px;
-    }
 
-    #chatui { 
-      background: #ccf;
-      width: 250px;
-      height: 250px;
-      padding: 0.5em; 
-      position:absolute;
-      top:170px;
-      right:440px;
-      overflow:scroll;
-    }
-    
-    #gamenotification {
-      position:fixed;
-      top: 50%;
-      left: 50%;
-      width:30em;
-      padding:1em;
-      margin-top: -9em; /*set to a negative number 1/2 of your height*/
-      margin-left: -15em; /*set to a negative number 1/2 of your width*/
+    #debugheader {
+      background: #999;
+      color: #fff;
+      width: 400px;
+      padding: 5px;
       text-align: center;
-      border: 1px solid #ccc;
-      background-color: #f3f3f3;          
     }

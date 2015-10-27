@@ -47,7 +47,7 @@ var run = function (session, data) {
 
 	// check if item is a tank
 	if (garageItem.assemblage != 'tank') {
-		logHandler.log('Could not select garage items: Item is neither tank nor weapon turret', 3);
+		logHandler.log('Could not select garage items: Item is not a tank', 3);
 		return false;
 	}
 
@@ -59,7 +59,7 @@ var run = function (session, data) {
 	storageHandler.set(userObject.id, userObject);
 
 	// send confirmation to client
-	var event = '{ "module": "garage", "action": "selecteditem", "data": "' + data + '" }';
+	var event = '{ "module": "garage", "action": "selectedtank", "data": "' + data + '" }';
 	communicationHandler.sendToSession(event, sessionObject);
 
 	// done

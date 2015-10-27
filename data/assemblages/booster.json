@@ -1,0 +1,15 @@
+{
+	"meta": {
+		"name": "booster",
+		"comment":"A booster for a tank"
+	},
+	"components": [
+		"HasNameComponent",
+		"HitboxComponent",
+		"HitpointComponent",
+		"PositionComponent",
+		"CanMoveComponent",
+		"CanFireComponent",
+		"HasPriceComponent"
+	]
+}

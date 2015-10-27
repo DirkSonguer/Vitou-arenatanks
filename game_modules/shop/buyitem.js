@@ -48,7 +48,11 @@ var run = function (session, data) {
 	
 	// TODO: Make transaction safe
 	userObject.userData.money -= requestedItem.data.price;
-	userObject.userData.garage.push(data);
+	if (requestedItem.assemblage == 'tank') {
+		userObject.userData.garage.push(data);	
+	} else {
+		userObject.userData.boostercards.push(data);	
+	}
 	storageHandler.set(userObject.id, userObject);
 	
 	// send confirmation to client

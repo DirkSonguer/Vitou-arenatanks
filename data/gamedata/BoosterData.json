@@ -1,0 +1,10 @@
+{
+	"meta": {
+		"assemblage":"booster"
+	},
+	"data": [
+		[ "Additional Armor",0,30,0,0,0,0,0,0,0,0,1000 ],
+		[ "Speed Booster",0,0,0,0,0,0,5,0,0,0,1000 ],
+		[ "Damage Increase",0,0,0,0,0,0,0,10,0,0,1000 ]
+	]
+}

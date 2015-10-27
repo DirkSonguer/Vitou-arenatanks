@@ -6,416 +6,107 @@
 <html>
 
 <head>
-  <title>Server Test Client</title>
+  <title>Vitou Tanks</title>
   <link rel="stylesheet" href="./css/main.css">
+  <script src="./js/jquery-1.11.1.js"></script>
+  <script src="./js/jquery-ui-1.11.4.js"></script>
+  <script src="./js/socket.io-1.2.0.js"></script>
+  <script type="text/javascript" src="./js/gamecalls.js"></script>
+  <script type="text/javascript" src="./js/serverresponses.js"></script>
 </head>
 
 <body>
   <div id="main">
-    <div id="createuser">
-      <h3>User</h3>
-      <input type="text" placeholder="Login" id="createuserlogin">
-      <input type="text" placeholder="Pass" id="createuserpass">
-      <button class="green" onclick="createNewUser()">Create new user</button><br />
-      <button onclick="createRandomUser()">Create random user</button><br />
-      <input type="text" placeholder="Login" id="loginlogin">
-      <input type="text" placeholder="Pass" id="loginpass">
-      <button class="green" onclick="loginUser()">Login user</button>      
+    <!-- This is the login screen containing the user creation as well as the user login actions -->
+    <div id="createuser" class="centerdialog">
+      <h3>You are currently not logged in</h3>
+      <hr />
+      <p>Create a new user</p>
+      <input type="text" class="inputfield" placeholder="Login" id="createuserlogin">
+      <input type="text" class="inputfield" placeholder="Pass" id="createuserpass">
+      <button class="action" onclick="createNewUser()">Create new user</button>
+      <button class="decline" onclick="createRandomUser()">Create a random user</button>
+      <hr />
+      <p>Login as existing user</p>
+      <input type="text" class="inputfield" placeholder="Login" id="loginlogin">
+      <input type="text" class="inputfield" placeholder="Pass" id="loginpass">
+      <button class="action" onclick="loginUser()">Login user</button>
     </div>
 
-    <div id="itemhandling" style="display:none;">
+    <div id="itemhandling" class="contentblock" style="display:none;">
       <h3>Items</h3>
-      <button onclick="sendEvent('game', 'garage', 'getitems', '')">Show items in your garage</button>
+      <button class="action" onclick="sendEvent('game', 'garage', 'gettanks', '')">Show items in your garage</button>
       <ul id="garagelist"></ul>
-      <button onclick="sendEvent('game', 'shop', 'getitems', '')">Show available shop items</button>
+      <button class="action" onclick="sendEvent('game', 'boostercards', 'getboosters', '')">Show your booster cards</button>
+      <ul id="boosterlist"></ul>
+      <button class="action" onclick="sendEvent('game', 'shop', 'getitems', '')">Show available shop items</button>
       <ul id="shoplist"></ul>
     </div>
 
-    <div id="lobbyhandling" style="display:none;">
-      <h3>Lobby</h3>
+    <div id="lobbyhandling" class="contentblock"  style="display:none;">
+      <h3>Game Lobbies</h3>
       <div id="createlobby">
-        <button onclick="sendEvent('system', 'lobby', 'create', '')">Create new lobby</button>
+        <button class="confirm" onclick="sendEvent('system', 'lobby', 'create', '')">Create new lobby</button>
       </div>
-
       <div id="showlobbies">
-        <button onclick="sendEvent('system', 'lobby', 'list', '')">Show available lobbies</button>
+        <button class="action" onclick="sendEvent('system', 'lobby', 'list', '')">Show available lobbies</button>
         <ul id="lobbylist"></ul>
       </div>
     </div>
 
-    <div id="currentlobby" style="display:none;">
+    <div id="currentlobby" class="centerdialog" style="display:none;">
       <ul id="currentlobbydata"></ul>
-      <button class="green" onclick="sendEvent('system', 'lobby', 'confirm', '')">Confirm participation</button>
-      <button onclick="sendEvent('system', 'lobby', 'leave', '')">Leave lobby</button>
+      <button class="confirm" onclick="sendEvent('system', 'lobby', 'confirm', '')">Confirm participation</button>
+      <button class="decline" onclick="sendEvent('system', 'lobby', 'leave', '')">Leave lobby</button>
     </div>
 
-    <div id="gamenotification" style="display:none;">
+    <div id="gamenotification" class="centerdialog" style="display:none;">
       <h2 id="notificationmessage"></h2>
-      <button class="green" onclick="hideNotification()">ok</button>
+      <button class="confirm" onclick="hideNotification()">ok</button>
     </div>
 
-    <div id="game" style="display:none;">
+    <div id="battlefield" style="display:none;">
       <canvas id="gamecanvas" width="1280" height="800">
-        <script type="text/javascript" src="./js/game.js"></script>
+        <script type="text/javascript" src="./js/battlefield.js"></script>
       </canvas>
     </div>
   </div>
 
-  <div id="hideui" class="ui-widget-content" onclick="hideShowUI()">X</div>
-
-  <div id="gameui" class="ui-widget-content">
-    <p id="gameui-playerstate">Not logged in</p>
-    <p id="gameui-playermoney"></p>
-    <p id="gameui-playertank"></p>
-    <p id="gameui-playerweaponturret"></p>
-    <p id="gameui-hitpoints"></p>
-    <ul id="gameui-players"></ul>
-    <p id="gameui-currentplayer"></p>
-  </div>
-
-  <div id="tankui" class="ui-widget-content" style="display:none;">
-    <div>
-      <input type="text" placeholder="Move X" id="movex">
-      <input type="text" placeholder="Move Y" id="movey">
-      <button class="green" onclick="moveTank()">Move!</button>
+  <div id="gameui" class="contentblock" style="display:none;">
+    <div id="gamedata">
+      <p id="gamedata-currentplayer"></p>
+      <ul id="gamedata-currenthitpoints"></ul>
     </div>
-    <div>
-      <input type="text" placeholder="Orientation" id="tankorientation">
-      <button class="green" onclick="turnTank()">Turn!</button>
+    <div id="tankactions">
+    <hr />
+      <input type="text" class="inputfield" placeholder="Move X" id="movex">
+      <input type="text" class="inputfield" placeholder="Move Y" id="movey">
+      <button class="action" onclick="moveTank()">Move!</button>
+    <hr />      
+      <input type="text" class="inputfield" placeholder="Orientation" id="tankorientation">
+      <button class="action" onclick="turnTank()">Turn!</button>
+    <hr />
+      <input type="text" class="inputfield" placeholder="Angle" id="shotangle">
+      <input type="text" class="inputfield" placeholder="Power" id="shotpower">
+      <button class="action" onclick="fireWeaponTurret()">Fire!</button>
     </div>
-    <div>
-      <input type="text" placeholder="Angle" id="shotangle">
-      <input type="text" placeholder="Power" id="shotpower">
-      <button class="green" onclick="fireWeaponTurret()">Fire!</button>
-    </div>
-  </div>
-  <div id="chatui" class="ui-widget-content">
-    <div>
-      <input type="text" placeholder="User, leave empty for broadcast" id="chatuser">
-      <input type="text" placeholder="Message" id="chatmessage">
-      <button class="green" onclick="sendChat()">Chat</button>
+    <hr />
+    <div id="chat">
+      <input type="text" class="inputfield" placeholder="User, leave empty for broadcast" id="chatuser">
+      <input type="text" class="inputfield" placeholder="Message" id="chatmessage">
+      <button class="confirm" onclick="sendChat()">Chat</button>
     </div>
     <div>
       <ul id="chatmessages"></ul>
     </div>
   </div>
 
-  <div id="debug">
-    <ul id="debugmessages"></ul>
+  <div id="debugwindow">
+   <div id="debugheader" onclick="hideShowDebug()">
+     <p>Debug Window</p>
+   </div>
+   <ul id="debugmessages"></ul>
   </div>
-
-  <script src="./js/jquery-1.11.1.js"></script>
-  <script src="./js/jquery-ui-1.11.4.js"></script>
-  <script src="./js/socket.io-1.2.0.js"></script>
-  <script>
-    var socket = io('http://localhost:8888');
-    
-    var currentUserId = '';
-    var currentUserIndex = '';
-    
-        $(function() {
-          $( "#gameui" ).draggable();
-          $( "#tankui" ).draggable();
-          $( "#chatui" ).draggable();
-          $( "#debug" ).draggable();
-        });
-      
-        $('form').submit(function(){
-          return false;
-        });      
-        
-        function sendEvent(t, m, a, d) {
-          var msgType = JSON.stringify(t);
-          var msgModule = JSON.stringify(m);
-          var msgAction = JSON.stringify(a);
-          var msgData = JSON.stringify(d);
-          socket.emit('event', '{"type": ' + msgType + ', "module": ' + msgModule + ', "action": ' + msgAction + ', "data": ' + msgData + '}');          
-        }
-
-        function hideShowUI() {
-            if ($('#gameui').css('display') !== 'none') {
-              $('#gameui').css('display', 'none');
-              $('#chatui').css('display', 'none');
-              $('#debug').css('display', 'none');              
-            } else {
-              $('#gameui').css('display', 'block');
-              $('#chatui').css('display', 'block');
-              $('#debug').css('display', 'block');              
-            }
-          }
-
-        function createNewUser() {
-          var userData = {'login':$('#createuserlogin').val(), 'password':$('#createuserpass').val()};
-          sendEvent('system', 'user', 'create', userData);
-        }        
-
-        function createRandomUser() {
-          var userTestname = 'Testuser' + Math.floor((Math.random() * 1000) + 1);
-          var userData = {'login':userTestname, 'password':'test'};
-          sendEvent('system', 'user', 'create', userData);
-        }        
-        
-        function loginUser() {
-          var loginData = {'login':$('#loginlogin').val(), 'password':$('#loginpass').val()};
-          sendEvent('system', 'user', 'authenticate', loginData);
-        }
-        
-        function moveTank() {
-          var shotData = {'x':$('#movex').val(), 'y':$('#movey').val()};
-          sendEvent('game', 'gameplay', 'move', shotData);
-        }        
-
-        function turnTank() {
-          var turnData = {'orientation':$('#tankorientation').val()};
-          sendEvent('game', 'gameplay', 'turn', turnData);
-        }
-        
-        function fireWeaponTurret() {
-          var shotData = {'angle':$('#shotangle').val(), 'power':$('#shotpower').val()};
-          sendEvent('game', 'gameplay', 'shoot', shotData);
-        }
-        
-        function hideNotification() {
-          $('#gamenotification').css('display', 'none');
-        }
-
-        function sendChat() {
-          if ($('#chatuser').val() == "") {
-            var chatData = $('#chatmessage').val();
-            sendEvent('system', 'chat', 'broadcast', chatData);
-          } else {
-            var userlist = $('#chatuser').val();
-
-            if (userlist.indexOf(";") >= 0) {
-              var userlistarray = userlist.split(";");
-              var chatData = {'message':$('#chatmessage').val(), 'to':userlistarray};
-              sendEvent('system', 'chat', 'group', chatData);
-            } else {
-              var chatData = {'message':$('#chatmessage').val(), 'to':userlist};
-              sendEvent('system', 'chat', 'message', chatData);
-            }
-          }
-        }
-        
-        socket.io.on('connect_error', function(err) {
-          $('#main').css('display', 'none');
-          $('#debugmessages').append($('<li>').text('Can\'t connect to server. Try reloading. ' + err));
-        });
-        
-        socket.on('connect', function() { 
-          $('#main').css('display', 'block');
-        });        
-        
-        socket.on('message', function(msg){
-          $('#debugmessages').prepend($('<li>').text(msg));
-
-          var serverMessage = JSON.parse(msg);
-
-          if ((serverMessage.module == 'chat') && (serverMessage.action == 'message')) {
-            $('#chatmessages').prepend($('<li>').text(serverMessage.data.from + ": " + serverMessage.data.message));
-          }
-
-          if (((serverMessage.module == 'user') && (serverMessage.action == 'created'))
-          || ((serverMessage.module == 'user') && (serverMessage.action == 'authenticated'))) {
-            currentUserId = serverMessage.data.id;
-            $('#createuser').css('display', 'none');
-            $('#lobbyhandling').css('display', 'block');
-            $('#itemhandling').css('display', 'block');
-            $('#gameui-playerstate').text('User logged in');
-            sendEvent('system', 'user', 'getstate', '');
-          }
-          
-          if ((serverMessage.module == 'user') && (serverMessage.action == 'state')) {
-            $('#gameui-playerstate').text('User logged in (' + serverMessage.data.id + ')');
-            $('#gameui-playermoney').text('Money: ' + serverMessage.data.userData.money);
-            $('#gameui-playertank').text('Current tank: ' + serverMessage.data.userData.activeTank);
-          }
-                    
-          if ((serverMessage.module == 'shop') && (serverMessage.action == 'items')) {
-            $('#shoplist').empty();
-            	for (var i = 0, len = serverMessage.data.length; i < len; i++) {
-                var itemObj = '<button class="green" onclick="sendEvent(\'game\', \'shop\', \'buyitem\', \'' + serverMessage.data[i].id + '\')">Buy ' + serverMessage.data[i].assemblage + ' ' + serverMessage.data[i].data.name + ' (Price: ' + serverMessage.data[i].data.price + ')</button>';
-                $('#shoplist').append($('<li>').append(itemObj));
-              }
-          }
-          
-          if ((serverMessage.module == 'shop') && (serverMessage.action == 'buyitem')) {
-            sendEvent('game', 'garage', 'getitems', '');
-            sendEvent('system', 'user', 'getstate', '');
-          }
-
-          if ((serverMessage.module == 'garage') && (serverMessage.action == 'items')) {
-            $('#garagelist').empty();
-            	for (var i = 0, len = serverMessage.data.length; i < len; i++) {
-                var itemObj = '<button class="green" onclick="sendEvent(\'game\', \'garage\', \'selectitem\', \'' + serverMessage.data[i].id + '\')">Select ' + serverMessage.data[i].assemblage + ' ' + serverMessage.data[i].data.name + '</button>';
-                $('#garagelist').append($('<li>').append(itemObj));
-              }
-          }
-          
-          if ((serverMessage.module == 'garage') && (serverMessage.action == 'selecteditem')) {
-            sendEvent('game', 'garage', 'getitems', '');
-            sendEvent('system', 'user', 'getstate', '');
-          }
-
-          if ((serverMessage.module == 'lobby') && (serverMessage.action == 'created')) {
-            $('#itemhandling').css('display', 'none');
-            $('#lobbyhandling').css('display', 'none');
-            $('#currentlobby').css('display', 'block');
-            sendEvent('system', 'lobby', 'getstate', '');
-          }
-
-          if ((serverMessage.module == 'lobby') && (serverMessage.action == 'list')) {
-            $('#lobbylist').empty();
-            	for (var i = 0, len = serverMessage.data.length; i < len; i++) {
-                var lobbyObj = '<button class="green" onclick="sendEvent(\'system\', \'lobby\', \'join\', \'' + serverMessage.data[i].id + '\')">Join lobby ' + serverMessage.data[i].id + '</button>';
-                $('#lobbylist').append($('<li>').append(lobbyObj));
-              }
-          }
-
-          if ((serverMessage.module == 'lobby') && (serverMessage.action == 'playerjoined')) {
-            $('#itemhandling').css('display', 'none');
-            $('#lobbyhandling').css('display', 'none');
-            $('#currentlobby').css('display', 'block');
-            sendEvent('system', 'lobby', 'getstate', '');
-          }
-
-          if ((serverMessage.module == 'lobby') && (serverMessage.action == 'playerconfirmed')) {
-            sendEvent('system', 'lobby', 'getstate', '');
-          }
-
-          if ((serverMessage.module == 'lobby') && (serverMessage.action == 'playerleft')) {
-            if (serverMessage.data == currentUserId) {
-              $('#currentlobby').css('display', 'none');
-              $('#lobbyhandling').css('display', 'block');
-              $('#itemhandling').css('display', 'block');
-            } else {            
-              sendEvent('system', 'lobby', 'getstate', '');
-            }
-          }
-          
-          if ((serverMessage.module == 'lobby') && (serverMessage.action == 'state')) {
-            $('#currentlobbydata').empty();
-            	for (var i = 0, len = serverMessage.data.lobbyParticipants.length; i < len; i++) {
-                  var playerState = 'Player: ' + serverMessage.data.lobbyParticipants[i];
-                  if (serverMessage.data.lobbyParticipantsConfirmed.indexOf(serverMessage.data.lobbyParticipants[i]) > -1) {
-                    playerState += ' (confirmed!)';
-                  } else {
-                    playerState += ' (unconfirmed!)';
-                  }
-                   $('#currentlobbydata').append($('<li>').text(playerState));
-              }           
-          }
-          
-          if ((serverMessage.module == 'game') && (serverMessage.action == 'created')) {
-            clearLayer(groundLayer, 79);
-            $('#itemhandling').css('display', 'none');
-            $('#currentlobby').css('display', 'none');
-            $('#game').css('display', 'block');
-            sendEvent('game', 'gameplay', 'getstate', '');
-          }
-
-          if ((serverMessage.module == 'game') && (serverMessage.action == 'playerhit')) {
-            if (serverMessage.data == currentUserIndex) {
-              $('#notificationmessage').text('You have been hit!');
-            } else {
-              $('#notificationmessage').text('Looks like you hit the other tank');
-            }
-            $('#gamenotification').css('display', 'block');
-          }
-
-          if ((serverMessage.module == 'game') && (serverMessage.action == 'ended')) {
-            if (serverMessage.data.playerStates[currentUserIndex].tank.currentHitpoints >= 0) {
-              $('#notificationmessage').text('YOU WON!');
-            } else {
-              $('#notificationmessage').text('YOU LOST!');
-            }
-            $('#gamenotification').css('display', 'block');
-            $('#itemhandling').css('display', 'block');
-            $('#lobbyhandling').css('display', 'block');
-            $('#lobbylist').empty();
-            $('#game').css('display', 'none');
-          }
-
-          if ((serverMessage.module == 'game') && (serverMessage.action == 'playershot')) {
-            var xPos = parseInt(serverMessage.data.x);
-            var yPos = parseInt(serverMessage.data.y);
-            explosionLayer[yPos][xPos] = 151;
-            
-            if (groundLayer[yPos-1][xPos-1] != 28) groundLayer[yPos-1][xPos-1] = 11;
-            if (groundLayer[yPos-1][xPos] != 28) groundLayer[yPos-1][xPos] = 12;
-            if (groundLayer[yPos-1][xPos+1] != 28) groundLayer[yPos-1][xPos+1] = 13;
-            if (groundLayer[yPos][xPos-1] != 28) groundLayer[yPos][xPos-1] = 27;
-            if (groundLayer[yPos][xPos] != 28) groundLayer[yPos][xPos] = 28;
-            if (groundLayer[yPos][xPos+1] != 28) groundLayer[yPos][xPos+1] = 29;
-            if (groundLayer[yPos+1][xPos-1] != 28) groundLayer[yPos+1][xPos-1] = 43;
-            if (groundLayer[yPos+1][xPos] != 28) groundLayer[yPos+1][xPos] = 44;
-            if (groundLayer[yPos+1][xPos+1] != 28) groundLayer[yPos+1][xPos+1] = 45;
-            drawImage();
-          }
-
-          if ((serverMessage.module == 'game') && (serverMessage.action == 'playermoved')) {
-            // layer02[yPos][xPos] = 204;
-            // sendEvent('game', 'gameplay', 'getstate', '');
-          }
-
-          if ((serverMessage.module == 'game') && (serverMessage.action == 'nextturn')) {
-            // layer02[yPos][xPos] = 204;
-            // sendEvent('game', 'gameplay', 'getstate', '');
-          }
-                    
-          if (((serverMessage.module == 'game') && (serverMessage.action == 'state'))
-          || ((serverMessage.module == 'game') && (serverMessage.action == 'nextturn'))) {
-            
-            $('#gameui-players').empty();
-            clearLayer(groundEffectLayer, 0);
-            clearLayer(tankLayer, 0);
-            clearLayer(explosionLayer, 0);
-            
-            for (var i = 0, len = serverMessage.data.gameParticipants.length; i < len; i++) {
-              if (serverMessage.data.gameParticipants[i] == currentUserId) {
-                currentUserIndex = i;
-              }
-
-              var xPos = serverMessage.data.playerStates[i].tank.x;
-              var yPos = serverMessage.data.playerStates[i].tank.y;
-              $('#gameui-players').append($('<li>').text('Player ' + i + ': ' + serverMessage.data.gameParticipants[i]));              
-              console.log("Player " + i + " xPos: " + xPos + " yPos: " + yPos);
-              
-              var tankImage = 199; // default Brutus
-              if (serverMessage.data.playerStates[i].tank.name == "Spike") tankImage = 228;
-              if (serverMessage.data.playerStates[i].tank.name == "Tower") tankImage = 196;
-              
-              if (serverMessage.data.playerStates[i].tank.orientation == 1) tankImage += 1;
-              if (serverMessage.data.playerStates[i].tank.orientation == 2) tankImage += 17;
-              if (serverMessage.data.playerStates[i].tank.orientation == 3) tankImage += 16;
-              tankLayer[yPos][xPos] = tankImage;
-
-              if ((parseInt(serverMessage.data.playerStates[i].tank.maxHitpoints)*0.5) > serverMessage.data.playerStates[i].tank.currentHitpoints) {
-                explosionLayer[yPos][xPos] = 148;
-              }              
-            }
-
-            console.log(serverMessage.data.playerStates[serverMessage.data.gameState.activePlayer].tank.x);
-
-              var xPos = serverMessage.data.playerStates[serverMessage.data.gameState.activePlayer].tank.x;
-              var yPos = serverMessage.data.playerStates[serverMessage.data.gameState.activePlayer].tank.y;
-              groundEffectLayer[yPos][xPos] = 150;
-
-            var currentPlayerInfo = 'Active player: ' + serverMessage.data.gameState.activePlayer;
-            if (serverMessage.data.gameState.activePlayer == currentUserIndex) {
-              currentPlayerInfo += ' (YOU!)';
-              $('#tankui').css('display', 'block');
-            } else {
-              currentPlayerInfo += ' (opponent)';
-              $('#tankui').css('display', 'none');
-            }
-            
-            $('#gameui-currentplayer').text(currentPlayerInfo);
-            $('#gameui-hitpoints').text('Player hitpoints: ' + serverMessage.data.playerStates[currentUserIndex].tank.currentHitpoints);
-            drawImage();
-          }
-        });
-  </script>
 </body>
 
 </html>
