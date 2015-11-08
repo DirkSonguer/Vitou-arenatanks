@@ -1,13 +1,11 @@
 
-# Vitou example projects
+# Vitou Arena Tanks
 
-This is an example game for the Vitou game server.
+This is an example game for the Vitou game server. It's a very simple 2-4 arena tanks game.
 
-# Vitou projects
+# Vitou project
 
 * Vitou server: https://github.com/DirkSonguer/Vitou
-* Vitou example game: https://github.com/DirkSonguer/Vitou-examplegame
-* Vitou UI: https://github.com/DirkSonguer/Vitou-ui
 
 ## Installation
 
