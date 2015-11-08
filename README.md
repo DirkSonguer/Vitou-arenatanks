@@ -7,8 +7,6 @@ This is an example game for the Vitou game server. It's a very simple 2-4 arena 
 
 * Vitou server: https://github.com/DirkSonguer/Vitou
 
-## Installation
-
 ### Prerequisites
 
 * Get Vitou: https://github.com/DirkSonguer/Vitou
@@ -18,6 +16,8 @@ This is an example game for the Vitou game server. It's a very simple 2-4 arena 
 
 ### Run example game server
 
-* "node ./vitou.js" in project root runs the game server 
+* "node --use_strict ./vitou.js" in project root runs the game server.
+* If local, open "/client/gameclient.html" in a browser
+* If remote, use a web server and make "/client/gameclient.html" available
 
 See server documentation in /documentation/
