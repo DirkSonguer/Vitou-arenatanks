@@ -139,7 +139,7 @@
           }
 
           if ((serverMessage.module == 'game') && (serverMessage.action == 'ended')) {
-            if (serverMessage.data.playerStates[currentUserIndex].tank.currentHitpoints >= 0) {
+            if (serverMessage.data.playerStates[currentUserIndex].tank.currentHitpoints > 0) {
               $('#notificationmessage').text('YOU WON!');
             } else {
               $('#notificationmessage').text('YOU LOST!');
@@ -148,7 +148,8 @@
             $('#itemhandling').css('display', 'block');
             $('#lobbyhandling').css('display', 'block');
             $('#lobbylist').empty();
-            $('#game').css('display', 'none');
+            $('#gameui').css('display', 'none');
+            $('#battlefield').css('display', 'none');
           }
 
           if ((serverMessage.module == 'game') && (serverMessage.action == 'playershot')) {

@@ -4,5 +4,5 @@ find . ! -name rungameserver.sh ! -name rungameclient.sh -delete
 	cp -R ../Vitou-examplegame/* ./
 } &> /dev/null
 echo
-node ./vitou.js
+node --use_strict ./vitou.js
 echo "Done."

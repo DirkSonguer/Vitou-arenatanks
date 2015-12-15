@@ -38,6 +38,11 @@
           var loginData = {'login':$('#loginlogin').val(), 'password':$('#loginpass').val()};
           sendEvent('system', 'user', 'authenticate', loginData);
         }
+
+        function forfeitGame() {
+          var forfeitDataData = {};
+          sendEvent('game', 'gameplay', 'forfeit', forfeitDataData);
+        }        
         
         function moveTank() {
           var shotData = {'x':$('#movex').val(), 'y':$('#movey').val()};

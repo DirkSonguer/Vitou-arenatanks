@@ -25,6 +25,7 @@
     { "if": "system/user/create", "then": "game/successors/onusercreated" },
     { "if": "game/gameplay/move", "then": "game/successors/endturn" },
     { "if": "game/gameplay/shoot", "then": "game/successors/endturn" },
-    { "if": "game/gameplay/turn", "then": "game/successors/endturn" }
+    { "if": "game/gameplay/turn", "then": "game/successors/endturn" },
+    { "if": "game/gameplay/forfeit", "then": "game/successors/endturn" }
   ]
 }
